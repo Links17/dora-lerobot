@@ -1,0 +1,15 @@
+nodes:
+  - id: so-arm
+    path: uv
+    args: [run, python, -m, dora_lerobot.nodes.so_arm_node]
+    inputs:
+      tick: dora/timer/millis/33
+      action: teleoperator/action
+    outputs: [observation, safe_action]
+  - id: recorder
+    path: uv
+    args: [run, python, -m, dora_lerobot.nodes.recorder_node]
+    inputs:
+      observation: so-arm/observation
+      action: so-arm/safe_action
+      save_episode: dora/keyboard/space

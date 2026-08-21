@@ -1,0 +1,40 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "dora-lerobot"
+version = "0.1.0"
+description = "Dora workflows and hardware adapters for LeRobot-compatible robotics"
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+  "dora-rs @ git+https://github.com/dora-rs/dora.git@v1.0.0-rc.4#subdirectory=apis/python/node",
+  "lerobot[dataset,feetech]==0.6.1",
+  "numpy>=2.0,<2.3",
+  "pyyaml>=6.0",
+]
+
+[dependency-groups]
+dev = ["pytest>=8.3", "ruff>=0.11"]
+
+[project.scripts]
+dora-lerobot-so-arm = "dora_lerobot.adapters.so_arm:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/dora_lerobot"]
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+exclude = ["datasets", "gym_dora", "node-hub", "robots", "docs"]
+
+[tool.ruff.lint]
+ignore = ["BLE001", "S110"]

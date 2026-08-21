@@ -1,0 +1,7 @@
+robot_id: seeed_dm
+max_control_hz: 100
+joints:
+  - name: joint_1
+    minimum_rad: -3.14
+    maximum_rad: 3.14
+    max_velocity_rad_s: 3.0
