@@ -112,6 +112,19 @@ pub fn encode_damiao_mode(
     )
 }
 
+/// Returns true only for the acknowledged CTRL_MODE (register 10) write for
+/// the requested actuator and target mode.
+pub fn is_damiao_mode_ack(frame: DamiaoCanFrame, motor_id: u16, mode: DamiaoControlMode) -> bool {
+    let data = frame.data;
+    frame.arbitration_id == motor_id.saturating_add(0x10)
+        && data[0] == motor_id as u8
+        && data[1] == (motor_id >> 8) as u8
+        && data[2] == 0x55
+        && data[3] == 10
+        && data[4] == mode as u8
+        && data[5..] == [0, 0, 0]
+}
+
 pub fn decode_damiao_feedback(
     data: [u8; 8],
     position_limit_rad: f32,

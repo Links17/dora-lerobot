@@ -2,7 +2,7 @@ use async_trait::async_trait;
 use dora_lerobot_hal::{
     DamiaoCanFrame, DamiaoCommand, DamiaoControlMode, DamiaoSerialBus, DamiaoSerialIo,
     DamiaoStatus, decode_damiao_feedback, encode_damiao_command, encode_damiao_lifecycle,
-    encode_damiao_mode,
+    encode_damiao_mode, is_damiao_mode_ack,
 };
 use std::collections::VecDeque;
 use std::sync::{Arc, Mutex};
@@ -147,4 +147,19 @@ fn dm_feedback_decodes_status_position_velocity_torque_and_temperatures() {
     assert!((feedback.torque_nm - 0.0).abs() < 0.02);
     assert_eq!(feedback.mos_temperature_c, 91);
     assert_eq!(feedback.rotor_temperature_c, 63);
+}
+
+#[test]
+fn dm_mode_ack_requires_the_expected_motor_register_and_value() {
+    // This catches enabling after an unrelated or stale register acknowledgement.
+    assert!(is_damiao_mode_ack(
+        DamiaoCanFrame::standard(0x17, [7, 0, 0x55, 10, 4, 0, 0, 0]),
+        7,
+        DamiaoControlMode::ForcePosition,
+    ));
+    assert!(!is_damiao_mode_ack(
+        DamiaoCanFrame::standard(0x17, [7, 0, 0x55, 10, 2, 0, 0, 0]),
+        7,
+        DamiaoControlMode::ForcePosition,
+    ));
 }
