@@ -35,6 +35,31 @@ pub struct DmAdapter<T> {
     transport: T,
     state: DmState,
     calibration_id: Option<String>,
+    last_action_timestamp_ns: Option<u64>,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct DamiaoAction {
+    pub positions_rad: [f32; 7],
+    pub timestamp_ns: u64,
+    pub velocity_limit_rad_s: f32,
+    pub torque_limit_ratio: f32,
+}
+
+impl DamiaoAction {
+    pub fn new(
+        positions_rad: [f32; 7],
+        timestamp_ns: u64,
+        velocity_limit_rad_s: f32,
+        torque_limit_ratio: f32,
+    ) -> Self {
+        Self {
+            positions_rad,
+            timestamp_ns,
+            velocity_limit_rad_s,
+            torque_limit_ratio,
+        }
+    }
 }
 
 impl<T: DamiaoTransport> DmAdapter<T> {
@@ -43,6 +68,7 @@ impl<T: DamiaoTransport> DmAdapter<T> {
             transport,
             state: DmState::Disconnected,
             calibration_id: None,
+            last_action_timestamp_ns: None,
         }
     }
     pub const fn state(&self) -> DmState {
@@ -111,6 +137,48 @@ impl<T: DamiaoTransport> DmAdapter<T> {
                 .await?;
         }
         self.state = DmState::Enabled;
+        Ok(())
+    }
+    pub async fn apply_action(&mut self, action: DamiaoAction) -> Result<(), DamiaoError> {
+        if self.state != DmState::Enabled {
+            return Err(DamiaoError::Frame("action requires enabled state"));
+        }
+        if self
+            .last_action_timestamp_ns
+            .is_some_and(|last| action.timestamp_ns <= last)
+        {
+            return Err(DamiaoError::Frame("action timestamp is not monotonic"));
+        }
+        if !action.velocity_limit_rad_s.is_finite()
+            || action.velocity_limit_rad_s <= 0.0
+            || !action.torque_limit_ratio.is_finite()
+            || !(0.0..=1.0).contains(&action.torque_limit_ratio)
+            || action
+                .positions_rad
+                .iter()
+                .any(|position| !position.is_finite())
+        {
+            return Err(DamiaoError::Frame("action contains invalid values"));
+        }
+        for (index, position_rad) in action.positions_rad.into_iter().enumerate() {
+            let id = (index + 1) as u16;
+            let command = if id == 7 {
+                crate::DamiaoCommand::ForcePosition {
+                    position_rad,
+                    velocity_limit_rad_s: action.velocity_limit_rad_s,
+                    torque_limit_ratio: action.torque_limit_ratio,
+                }
+            } else {
+                crate::DamiaoCommand::PositionVelocity {
+                    position_rad,
+                    velocity_limit_rad_s: action.velocity_limit_rad_s,
+                }
+            };
+            self.transport
+                .send_frame(crate::encode_damiao_command(id, command)?)
+                .await?;
+        }
+        self.last_action_timestamp_ns = Some(action.timestamp_ns);
         Ok(())
     }
     async fn disable_all(&mut self) -> Result<(), DamiaoError> {

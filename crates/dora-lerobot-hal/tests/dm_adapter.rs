@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use dora_lerobot_hal::{
-    DamiaoCanFrame, DamiaoControlMode, DamiaoError, DamiaoTransport, DmAdapter, DmState,
-    encode_damiao_mode,
+    DamiaoAction, DamiaoCanFrame, DamiaoControlMode, DamiaoError, DamiaoTransport, DmAdapter,
+    DmState, encode_damiao_mode,
 };
 use std::{
     collections::VecDeque,
@@ -59,6 +59,48 @@ async fn dm_adapter_enables_modes_only_after_all_mode_acks() {
     assert_eq!(adapter.state(), DmState::Enabled);
     let frames = writes.lock().unwrap();
     assert_eq!(frames.iter().filter(|f| f.data()[7] == 0xfc).count(), 7);
+}
+
+#[tokio::test]
+async fn dm_adapter_applies_fixed_joint_order_only_when_enabled() {
+    let transport = FakeTransport::default();
+    for id in 1..=6 {
+        transport
+            .reads
+            .lock()
+            .unwrap()
+            .push_back(DamiaoCanFrame::standard(
+                id + 0x10,
+                encode_damiao_mode(id, DamiaoControlMode::PositionVelocity)
+                    .unwrap()
+                    .data(),
+            ));
+    }
+    transport
+        .reads
+        .lock()
+        .unwrap()
+        .push_back(DamiaoCanFrame::standard(
+            0x17,
+            encode_damiao_mode(7, DamiaoControlMode::ForcePosition)
+                .unwrap()
+                .data(),
+        ));
+    let writes = transport.writes.clone();
+    let mut adapter = DmAdapter::new(transport);
+    adapter.connect().await.unwrap();
+    adapter.accept_calibration("b601-dm-v1").unwrap();
+    adapter.enable().await.unwrap();
+    adapter
+        .apply_action(DamiaoAction::new([0.1; 7], 42, 1.0, 0.2))
+        .await
+        .unwrap();
+    let frames = writes.lock().unwrap();
+    let action_ids: Vec<_> = frames[frames.len() - 7..]
+        .iter()
+        .map(|frame| frame.arbitration_id())
+        .collect();
+    assert_eq!(action_ids, vec![1, 2, 3, 4, 5, 6, 7]);
 }
 
 #[tokio::test]

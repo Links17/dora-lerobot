@@ -11,7 +11,7 @@ pub use damiao::{
     DamiaoSerialIo, DamiaoStatus, decode_damiao_feedback, encode_damiao_command,
     encode_damiao_lifecycle, encode_damiao_mode, is_damiao_mode_ack,
 };
-pub use dm_adapter::{B601_DM_MOTOR_IDS, DamiaoTransport, DmAdapter, DmState};
+pub use dm_adapter::{B601_DM_MOTOR_IDS, DamiaoAction, DamiaoTransport, DmAdapter, DmState};
 
 use async_trait::async_trait;
 use bytes::Bytes;
