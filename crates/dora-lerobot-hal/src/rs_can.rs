@@ -1,6 +1,9 @@
 use crate::{RsCanFrame, RsMitError, RsMitTransport};
 use async_trait::async_trait;
-use seeed_hal_can::{CanFilterSet, CanFrame, CanId, CanLinkExpectation, CanMode, CanOpenConfig};
+use seeed_hal_can::{
+    CanFilter, CanFilterSet, CanFrame, CanFrameClasses, CanId, CanIdFormat, CanLinkExpectation,
+    CanMode, CanOpenConfig,
+};
 use seeed_hal_core::{LeaseMode, OwnerId, ResourceSelector};
 use seeed_hal_runtime::{CanHandle, HalRuntime};
 use std::time::Duration;
@@ -19,21 +22,24 @@ impl HalRsCanTransport {
         selector: ResourceSelector,
         receive_timeout: Duration,
     ) -> Result<Self, RsMitError> {
-        let expectation = CanLinkExpectation::new(
-            Some(CanMode::Classic),
-            Some(1_000_000),
-            None,
-            Some(false),
-            Some(false),
-        )
-        .map_err(hal)?;
+        let expectation =
+            CanLinkExpectation::new(Some(CanMode::Classic), None, None, None, None).map_err(hal)?;
         let handle = runtime
             .open_can(
                 owner,
                 selector,
                 LeaseMode::Control,
                 CanOpenConfig::Attach(expectation),
-                CanFilterSet::new(vec![]).map_err(hal)?,
+                CanFilterSet::new(vec![
+                    CanFilter::new(
+                        0xfd,
+                        0x7ff,
+                        CanIdFormat::Standard,
+                        CanFrameClasses::data_only(),
+                    )
+                    .map_err(hal)?,
+                ])
+                .map_err(hal)?,
             )
             .await
             .map_err(hal)?;

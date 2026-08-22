@@ -7,6 +7,7 @@ mod damiao;
 mod dm_adapter;
 mod rs_adapter;
 mod rs_can;
+mod rs_gravity;
 mod rs_mit;
 
 pub use damiao::{
@@ -17,8 +18,11 @@ pub use damiao::{
 pub use dm_adapter::{
     B601_DM_MOTOR_IDS, DamiaoAction, DamiaoObservation, DamiaoTransport, DmAdapter, DmState,
 };
-pub use rs_adapter::{B601_RS_MOTOR_IDS, RsAdapter, RsAdapterSettings, RsMitTransport, RsObservation, RsState};
+pub use rs_adapter::{
+    B601_RS_MOTOR_IDS, RsAdapter, RsAdapterSettings, RsMitTransport, RsObservation, RsState,
+};
 pub use rs_can::HalRsCanTransport;
+pub use rs_gravity::RsTorqueFeedforward;
 pub use rs_mit::{
     RsCanFrame, RsMitCommand, RsMitError, RsMitFeedback, RsMotorLimits, decode_rs_mit_feedback,
     encode_rs_mit_command, encode_rs_mit_lifecycle,

@@ -1,6 +1,6 @@
 use crate::{
-    RsCanFrame, RsMitCommand, RsMitError, RsMotorLimits, decode_rs_mit_feedback,
-    encode_rs_mit_command, encode_rs_mit_lifecycle,
+    RsCanFrame, RsMitCommand, RsMitError, RsMotorLimits, RsTorqueFeedforward,
+    decode_rs_mit_feedback, encode_rs_mit_command, encode_rs_mit_lifecycle,
 };
 use async_trait::async_trait;
 
@@ -166,6 +166,15 @@ impl<T: RsMitTransport> RsAdapter<T> {
         positions_rad: [f32; 7],
         timestamp_ns: u64,
     ) -> Result<(), RsMitError> {
+        self.apply_action_with_torque(positions_rad, timestamp_ns, RsTorqueFeedforward::zero())
+            .await
+    }
+    pub async fn apply_action_with_torque(
+        &mut self,
+        positions_rad: [f32; 7],
+        timestamp_ns: u64,
+        torque: RsTorqueFeedforward,
+    ) -> Result<(), RsMitError> {
         if self.state != RsState::Enabled {
             return Err(RsMitError::Frame("action requires enabled state"));
         }
@@ -178,6 +187,8 @@ impl<T: RsMitTransport> RsAdapter<T> {
         if positions_rad.iter().any(|v| !v.is_finite()) {
             return Err(RsMitError::Frame("action contains non-finite position"));
         }
+        let motor_limits = self.limits.map(|limit| limit.torque_nm);
+        let torque = torque.bounded(motor_limits, self.gripper_torque_limit_nm)?;
         for (index, raw) in positions_rad.into_iter().enumerate() {
             let limit = self.limits[index].position_rad;
             let target =
@@ -195,11 +206,7 @@ impl<T: RsMitTransport> RsAdapter<T> {
                 velocity_rad_s: 0.0,
                 kp: self.kp[index],
                 kd: self.kd[index],
-                torque_nm: if index == 6 {
-                    0.0_f32.clamp(-self.gripper_torque_limit_nm, self.gripper_torque_limit_nm)
-                } else {
-                    0.0
-                },
+                torque_nm: torque.torque_nm[index],
             };
             self.transport
                 .send_frame(encode_rs_mit_command(
