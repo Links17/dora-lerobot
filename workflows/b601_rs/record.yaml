@@ -2,7 +2,7 @@ nodes:
   - id: b601-rs
     path: cargo
     args: run --quiet -p b601-rs-hal-node
-    inputs: {tick: dora/timer/millis/20, action: teleoperator/action}
+    inputs: {tick: dora/timer/millis/20, action: gravity/action}
     outputs: [observation, safe_action, status]
   - id: teleoperator
     path: uv
@@ -13,3 +13,8 @@ nodes:
     path: uv
     args: run python -m dora_lerobot.nodes.recorder_node
     inputs: {observation: b601-rs/observation, action: b601-rs/safe_action}
+  - id: gravity
+    path: uv
+    args: run python -m dora_lerobot.nodes.rs_gravity_node
+    inputs: {observation: b601-rs/observation, action: teleoperator/action}
+    outputs: [action]

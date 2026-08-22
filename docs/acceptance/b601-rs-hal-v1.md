@@ -16,6 +16,13 @@ The adapter enforces the RS MIT frame layout, joint limits, per-step relative
 target cap, monotonic timestamps, thermal stop at 80°C, and local safe-stop.
 Cloud actions cannot bypass these checks.
 
-Gravity compensation is intentionally a separate dynamics component. It must
-produce a bounded torque feed-forward action that still passes the local RS
-adapter checks; it is not enabled by this baseline acceptance profile.
+Gravity compensation is a separate dynamics node. Before starting an RS graph
+that includes it, set the deployment-owned URDF path (outside the workflow):
+
+```bash
+export DORA_LEROBOT_RS_GRAVITY_URDF=/secure/00-arm-rs_asm-v3.urdf
+```
+
+It produces arm torque feed-forward only; the gripper remains passive. Every
+value is bounded once in the dynamics bridge and again by the local RS adapter
+before MIT encoding. Do not enable it for a first motion test.

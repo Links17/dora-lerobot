@@ -2,10 +2,15 @@ nodes:
   - id: b601-rs
     path: cargo
     args: run --quiet -p b601-rs-hal-node
-    inputs: {tick: dora/timer/millis/20, action: cloud-policy/action}
+    inputs: {tick: dora/timer/millis/20, action: gravity/action}
     outputs: [observation, safe_action, status]
   - id: cloud-policy
     path: uv
     args: run python -m dora_lerobot.nodes.cloud_policy_node
     inputs: {observation: b601-rs/observation}
+    outputs: [action]
+  - id: gravity
+    path: uv
+    args: run python -m dora_lerobot.nodes.rs_gravity_node
+    inputs: {observation: b601-rs/observation, action: cloud-policy/action}
     outputs: [action]

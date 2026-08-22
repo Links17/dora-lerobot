@@ -1,5 +1,5 @@
 use b601_rs_hal_node::{RuntimeConfig, is_discovery_request, parse_lifecycle};
-use dora_lerobot_hal::{HalRsCanTransport, RsAdapter, RsAdapterSettings};
+use dora_lerobot_hal::{HalRsCanTransport, RsAdapter, RsAdapterSettings, RsTorqueFeedforward};
 use dora_node_api::{DoraNode, Event, arrow::array::StringArray, dora_core::config::DataId};
 use eyre::{Context, Result};
 use seeed_hal_adapter_socketcan::SocketCanAdapter;
@@ -17,6 +17,7 @@ struct Action {
     positions_rad: [f32; 7],
     timestamp_ns: u64,
     control_mode: String,
+    torque_nm: Option<[f32; 7]>,
 }
 const JOINTS: [&str; 7] = [
     "shoulder_pan",
@@ -87,7 +88,7 @@ fn main() -> Result<()> {
                     continue;
                 }
                 match tokio
-                    .block_on(adapter.apply_action(action.positions_rad, action.timestamp_ns))
+                    .block_on(adapter.apply_action_with_torque(action.positions_rad, action.timestamp_ns, RsTorqueFeedforward { torque_nm: action.torque_nm.unwrap_or([0.0; 7]) }))
                 {
                     Ok(()) => node.send_output(
                         DataId::from("safe_action".to_owned()),
