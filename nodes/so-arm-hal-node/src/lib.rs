@@ -17,6 +17,8 @@ pub enum ConfigError {
     Robot(#[from] SoArmError),
     #[error("SO-ARM configuration must define joints in the canonical six-joint order")]
     JointOrder,
+    #[error("lifecycle parameter must be calibrate, enable, or disable")]
+    InvalidLifecycle,
 }
 
 impl From<seeed_hal_core::HalError> for ConfigError {
@@ -35,6 +37,22 @@ pub struct RuntimeConfig {
 pub struct RobotRuntimeConfig {
     pub calibration_id: String,
     pub config: SoArmConfig,
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum LifecycleCommand {
+    Calibrate,
+    Enable,
+    Disable,
+}
+
+pub fn parse_lifecycle(value: &serde_json::Value) -> Result<LifecycleCommand, ConfigError> {
+    match value.as_str() {
+        Some("calibrate") => Ok(LifecycleCommand::Calibrate),
+        Some("enable") => Ok(LifecycleCommand::Enable),
+        Some("disable") => Ok(LifecycleCommand::Disable),
+        _ => Err(ConfigError::InvalidLifecycle),
+    }
 }
 
 #[derive(Deserialize)]

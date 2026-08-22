@@ -18,11 +18,18 @@ uv run dora-lerobot-so-arm-hardware --hardware-config /secure/so-arm.yaml --cali
 uv run dora-lerobot-so-arm-hardware --hardware-config /secure/so-arm.yaml --calibrate leader
 ```
 
-HAL workflow launches connect with torque disabled. The future Rust control
-plane must inject named `calibrate`, `enable`, and `disable` lifecycle inputs;
-the Dora 1.0 RC no longer provides the legacy keyboard pseudo-input. Graph
-shutdown or a node error runs local torque disable independently of cloud or
-Python connectivity.
+HAL workflow launches connect with torque disabled. Dora 1.0's runtime
+parameter channel is the temporary local control-plane interface; after the
+dataflow is started, issue these commands in order (replace the dataflow name):
+
+```bash
+dora param set so-arm lifecycle '"calibrate"' --dataflow <dataflow>
+dora param set so-arm lifecycle '"enable"' --dataflow <dataflow>
+dora param set so-arm lifecycle '"disable"' --dataflow <dataflow>
+```
+
+Only those three exact lifecycle values are accepted. Graph shutdown or a node
+error runs local torque disable independently of cloud or Python connectivity.
 
 The recorder likewise awaits a control-plane `save_episode` event; the old
 keyboard-space source was removed because it is not a Dora 1.0 input source.

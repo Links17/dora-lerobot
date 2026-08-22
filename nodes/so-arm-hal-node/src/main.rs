@@ -6,7 +6,7 @@ use eyre::{Context, Result, bail};
 use seeed_hal_adapter_serialport::SerialPortAdapter;
 use seeed_hal_runtime::HalRuntime;
 use serde::Deserialize;
-use so_arm_hal_node::RuntimeConfig;
+use so_arm_hal_node::{LifecycleCommand, RuntimeConfig, parse_lifecycle};
 use std::fs;
 use std::time::{SystemTime, UNIX_EPOCH};
 
@@ -47,6 +47,16 @@ fn run(
     let (mut node, mut events) = DoraNode::init_from_env()?;
     tokio.block_on(adapter.connect())?;
     while let Some(event) = events.recv() {
+        if let Event::ParamUpdate { key, value } = &event {
+            if key == "lifecycle" {
+                match parse_lifecycle(value)? {
+                    LifecycleCommand::Calibrate => adapter.accept_calibration(calibration_id)?,
+                    LifecycleCommand::Enable => tokio.block_on(adapter.enable(now_ns()))?,
+                    LifecycleCommand::Disable => tokio.block_on(adapter.safe_stop())?,
+                }
+            }
+            continue;
+        }
         let Event::Input { id, data, .. } = event else {
             continue;
         };
