@@ -662,6 +662,24 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0c4b4d0bd25bd0b74681c0ad21497610ce1b7c91b1022cd21c80c6fbdd9476b0"
 
 [[package]]
+name = "b601-dm-hal-node"
+version = "0.1.0"
+dependencies = [
+ "dora-lerobot-hal",
+ "dora-node-api 1.0.0-rc.4",
+ "eyre",
+ "seeed-hal-adapter-serialport",
+ "seeed-hal-core",
+ "seeed-hal-runtime",
+ "seeed-hal-serial",
+ "serde",
+ "serde_json",
+ "serde_yaml 0.9.34+deprecated",
+ "thiserror 2.0.20",
+ "tokio",
+]
+
+[[package]]
 name = "base64"
 version = "0.22.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
