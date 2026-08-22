@@ -46,6 +46,12 @@ pub struct DamiaoAction {
     pub torque_limit_ratio: f32,
 }
 
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct DamiaoObservation {
+    pub timestamp_ns: u64,
+    pub feedback: [crate::DamiaoFeedback; 7],
+}
+
 impl DamiaoAction {
     pub fn new(
         positions_rad: [f32; 7],
@@ -180,6 +186,56 @@ impl<T: DamiaoTransport> DmAdapter<T> {
         }
         self.last_action_timestamp_ns = Some(action.timestamp_ns);
         Ok(())
+    }
+    pub async fn observe(&mut self, timestamp_ns: u64) -> Result<DamiaoObservation, DamiaoError> {
+        if self.state != DmState::Enabled {
+            return Err(DamiaoError::Frame("observation requires enabled state"));
+        }
+        let mut feedback = [crate::DamiaoFeedback {
+            motor_id: 0,
+            status_code: 0,
+            position_rad: 0.0,
+            velocity_rad_s: 0.0,
+            torque_nm: 0.0,
+            mos_temperature_c: 0,
+            rotor_temperature_c: 0,
+        }; 7];
+        for expected_id in B601_DM_MOTOR_IDS {
+            let frame = self
+                .transport
+                .receive_frame()
+                .await?
+                .ok_or(DamiaoError::Frame("missing motor feedback"))?;
+            if frame.arbitration_id() != expected_id + 0x10 {
+                self.disable_all().await?;
+                self.state = DmState::ConnectedDisabled;
+                return Err(DamiaoError::Frame("motor feedback id mismatch"));
+            }
+            let (position_limit, velocity_limit, torque_limit) = if expected_id <= 3 {
+                (12.5, 10.0, 28.0)
+            } else {
+                (12.5, 30.0, 10.0)
+            };
+            let state = crate::decode_damiao_feedback(
+                frame.data(),
+                position_limit,
+                velocity_limit,
+                torque_limit,
+            )?;
+            if state.status_code != 1
+                || state.mos_temperature_c >= 80
+                || state.rotor_temperature_c >= 80
+            {
+                self.disable_all().await?;
+                self.state = DmState::ConnectedDisabled;
+                return Err(DamiaoError::Frame("motor fault or thermal limit"));
+            }
+            feedback[(expected_id - 1) as usize] = state;
+        }
+        Ok(DamiaoObservation {
+            timestamp_ns,
+            feedback,
+        })
     }
     async fn disable_all(&mut self) -> Result<(), DamiaoError> {
         for id in B601_DM_MOTOR_IDS {
