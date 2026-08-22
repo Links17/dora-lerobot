@@ -63,6 +63,12 @@ pub fn is_recoverable_action_error(error: &SoArmError) -> bool {
     )
 }
 
+pub fn is_discovery_request(args: impl IntoIterator<Item = impl AsRef<str>>) -> bool {
+    args.into_iter()
+        .skip(1)
+        .any(|arg| arg.as_ref() == "--discover")
+}
+
 #[derive(Deserialize)]
 struct RawConfig {
     owner: String,

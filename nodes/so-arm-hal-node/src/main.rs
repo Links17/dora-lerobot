@@ -7,7 +7,8 @@ use seeed_hal_adapter_serialport::SerialPortAdapter;
 use seeed_hal_runtime::HalRuntime;
 use serde::Deserialize;
 use so_arm_hal_node::{
-    LifecycleCommand, RuntimeConfig, is_recoverable_action_error, parse_lifecycle,
+    LifecycleCommand, RuntimeConfig, is_discovery_request, is_recoverable_action_error,
+    parse_lifecycle,
 };
 use std::fs;
 use std::time::{SystemTime, UNIX_EPOCH};
@@ -20,6 +21,9 @@ struct ActionMessage {
 }
 
 fn main() -> Result<()> {
+    if is_discovery_request(std::env::args()) {
+        return discover();
+    }
     let config_path = std::env::var("DORA_LEROBOT_SO_ARM_HAL_CONFIG")
         .wrap_err("DORA_LEROBOT_SO_ARM_HAL_CONFIG must name an operator configuration")?;
     let config = RuntimeConfig::from_yaml(&fs::read_to_string(config_path)?)?;
@@ -38,6 +42,25 @@ fn main() -> Result<()> {
     let close_result = tokio.block_on(adapter.close());
     outcome?;
     close_result?;
+    Ok(())
+}
+
+/// Lists HAL identities without opening a serial session.
+fn discover() -> Result<()> {
+    let runtime = HalRuntime::builder()
+        .serial_adapter(SerialPortAdapter::new())
+        .build();
+    let tokio = tokio::runtime::Runtime::new()?;
+    let descriptors = tokio.block_on(runtime.enumerate_serial())?;
+    for descriptor in descriptors {
+        println!(
+            "resource:\n  id: {}\n  minimum_identity_quality: {:?}\n  transport: {:?}\nendpoint: {}",
+            descriptor.id().as_str(),
+            descriptor.minimum_identity_quality(),
+            descriptor.transport(),
+            descriptor.endpoint().as_str(),
+        );
+    }
     Ok(())
 }
 

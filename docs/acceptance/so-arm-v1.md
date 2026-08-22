@@ -5,8 +5,14 @@ the in-memory safety path; an operator completes this checklist on the robot.
 
 There are two explicitly exclusive deployment modes. The default HAL mode uses
 `configs/runtime/so_arm.hal.example.yaml`: copy it outside the repository, use
-HAL discovery to obtain the follower's stable serial resource ID, and enter the
-measured zero ticks/directions and limits. It does not use `/dev/tty*` in a
+HAL discovery to obtain the follower's stable serial resource ID:
+
+```bash
+cargo run --quiet -p so-arm-hal-node -- --discover
+```
+
+Copy the printed `resource` mapping (not its endpoint) into the private
+configuration, then enter the measured zero ticks/directions and limits. It does not use `/dev/tty*` in a
 workflow or Python runtime. Set `DORA_LEROBOT_SO_ARM_HAL_CONFIG` to that file.
 
 The legacy vendor-direct mode uses `configs/runtime/so_arm.hardware.example.yaml`
