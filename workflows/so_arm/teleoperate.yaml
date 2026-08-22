@@ -1,7 +1,7 @@
 nodes:
   - id: so-arm
-    path: uv
-    args: [run, python, -m, dora_lerobot.runtime.so_arm_node]
+    path: cargo
+    args: [run, --quiet, -p, so-arm-hal-node]
     inputs:
       tick: dora/timer/millis/33
       calibrate: dora/keyboard/c

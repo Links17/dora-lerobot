@@ -3,19 +3,25 @@
 This checklist is hardware-gated. Automated tests verify contracts, bridges, and
 the in-memory safety path; an operator completes this checklist on the robot.
 
-Before connecting a real robot, copy `configs/runtime/so_arm.hardware.example.yaml`
-outside the repository, set the two serial ports, and calibrate each device
-explicitly. The calibration command is interactive and is the only command that
-may invoke LeRobot calibration:
+There are two explicitly exclusive deployment modes. The default HAL mode uses
+`configs/runtime/so_arm.hal.example.yaml`: copy it outside the repository, use
+HAL discovery to obtain the follower's stable serial resource ID, and enter the
+measured zero ticks/directions and limits. It does not use `/dev/tty*` in a
+workflow or Python runtime. Set `DORA_LEROBOT_SO_ARM_HAL_CONFIG` to that file.
+
+The legacy vendor-direct mode uses `configs/runtime/so_arm.hardware.example.yaml`
+and is only a migration fallback. Never run it while HAL owns the follower
+serial resource. Its calibration command remains interactive:
 
 ```bash
 uv run dora-lerobot-so-arm-hardware --hardware-config /secure/so-arm.yaml --calibrate follower
 uv run dora-lerobot-so-arm-hardware --hardware-config /secure/so-arm.yaml --calibrate leader
 ```
 
-It writes the matching local calibration identity profiles. Normal graph launches
-require `DORA_LEROBOT_SO_ARM_CONFIG=/secure/so-arm.yaml`; they connect with torque
-disabled and only enable it from the explicit Dora `enable` input.
+HAL workflow launches connect with torque disabled. Press `c` to accept the
+specified persisted calibration identity, then press `e` to enable. `d`, graph
+shutdown, or a node error runs local torque disable independently of cloud or
+Python connectivity.
 
 - [ ] Confirm configuration joint order matches the physical robot.
 - [ ] Confirm calibrated limits and zero offsets before enabling torque.

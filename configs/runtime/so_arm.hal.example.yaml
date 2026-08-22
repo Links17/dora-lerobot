@@ -1,0 +1,22 @@
+# Operator-side configuration; never reference this file from a Dora graph.
+# First run the HAL serial discovery command and copy the stable resource ID.
+owner: dora-so-arm-follower
+resource:
+  # Example identity; replace with a discovered serial:usb:<vid>:<pid>:<serial> value.
+  id: serial:usb:303a:1001:REPLACE_ME
+  minimum_identity_quality: Strong
+  transport: Serial
+serial:
+  baud_rate: 1000000
+  read_timeout_ms: 20
+robot:
+  id: so-arm-follower-01
+  # A persisted calibration identity. The profile values below are authoritative.
+  calibration_id: so-arm-follower-01-v1
+  joints:
+    - {name: shoulder_pan, minimum_rad: -2.8, maximum_rad: 2.8, max_velocity_rad_s: 3.14, zero_tick: 2048, direction: 1}
+    - {name: shoulder_lift, minimum_rad: -1.8, maximum_rad: 1.8, max_velocity_rad_s: 3.14, zero_tick: 2048, direction: 1}
+    - {name: elbow_flex, minimum_rad: -2.2, maximum_rad: 2.2, max_velocity_rad_s: 3.14, zero_tick: 2048, direction: 1}
+    - {name: wrist_flex, minimum_rad: -2.8, maximum_rad: 2.8, max_velocity_rad_s: 3.14, zero_tick: 2048, direction: 1}
+    - {name: wrist_roll, minimum_rad: -3.14, maximum_rad: 3.14, max_velocity_rad_s: 3.14, zero_tick: 2048, direction: 1}
+    - {name: gripper, minimum_rad: 0.0, maximum_rad: 1.0, max_velocity_rad_s: 2.0, zero_tick: 2048, direction: 1}

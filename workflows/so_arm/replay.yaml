@@ -6,8 +6,11 @@ nodes:
       tick: dora/timer/millis/33
     outputs: [action]
   - id: so-arm
-    path: uv
-    args: [run, python, -m, dora_lerobot.runtime.so_arm_node]
+    path: cargo
+    args: [run, --quiet, -p, so-arm-hal-node]
     inputs:
+      calibrate: dora/keyboard/c
+      enable: dora/keyboard/e
+      disable: dora/keyboard/d
       action: replay/action
     outputs: [safe_action]
