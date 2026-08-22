@@ -27,6 +27,17 @@ pub struct RsObservation {
     pub feedback: [crate::RsMitFeedback; 7],
 }
 
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct RsAdapterSettings {
+    pub limits: [RsMotorLimits; 7],
+    pub max_relative_target_rad: f32,
+    pub kp: [f32; 7],
+    pub kd: [f32; 7],
+    pub zero_offsets_rad: [f32; 7],
+    pub directions: [f32; 7],
+    pub gripper_torque_limit_nm: f32,
+}
+
 pub struct RsAdapter<T> {
     transport: T,
     limits: [RsMotorLimits; 7],
@@ -37,6 +48,9 @@ pub struct RsAdapter<T> {
     last_action_timestamp_ns: Option<u64>,
     kp: [f32; 7],
     kd: [f32; 7],
+    zero_offsets_rad: [f32; 7],
+    directions: [f32; 7],
+    gripper_torque_limit_nm: f32,
 }
 
 impl<T: RsMitTransport> RsAdapter<T> {
@@ -56,16 +70,33 @@ impl<T: RsMitTransport> RsAdapter<T> {
         kp: [f32; 7],
         kd: [f32; 7],
     ) -> Self {
+        Self::new_with_settings(
+            transport,
+            RsAdapterSettings {
+                limits,
+                max_relative_target_rad,
+                kp,
+                kd,
+                zero_offsets_rad: [0.0; 7],
+                directions: [1.0; 7],
+                gripper_torque_limit_nm: 3.5,
+            },
+        )
+    }
+    pub fn new_with_settings(transport: T, settings: RsAdapterSettings) -> Self {
         Self {
             transport,
-            limits,
+            limits: settings.limits,
             state: RsState::Disconnected,
             calibration_id: None,
-            max_relative_target_rad,
+            max_relative_target_rad: settings.max_relative_target_rad,
             last_target: [0.0; 7],
             last_action_timestamp_ns: None,
-            kp,
-            kd,
+            kp: settings.kp,
+            kd: settings.kd,
+            zero_offsets_rad: settings.zero_offsets_rad,
+            directions: settings.directions,
+            gripper_torque_limit_nm: settings.gripper_torque_limit_nm,
         }
     }
     pub const fn state(&self) -> RsState {
@@ -149,7 +180,8 @@ impl<T: RsMitTransport> RsAdapter<T> {
         }
         for (index, raw) in positions_rad.into_iter().enumerate() {
             let limit = self.limits[index].position_rad;
-            let target = raw.clamp(-limit, limit);
+            let target =
+                (self.zero_offsets_rad[index] + self.directions[index] * raw).clamp(-limit, limit);
             let delta = target - self.last_target[index];
             let bounded =
                 if self.max_relative_target_rad.is_finite() && self.max_relative_target_rad > 0.0 {
@@ -163,7 +195,11 @@ impl<T: RsMitTransport> RsAdapter<T> {
                 velocity_rad_s: 0.0,
                 kp: self.kp[index],
                 kd: self.kd[index],
-                torque_nm: 0.0,
+                torque_nm: if index == 6 {
+                    0.0_f32.clamp(-self.gripper_torque_limit_nm, self.gripper_torque_limit_nm)
+                } else {
+                    0.0
+                },
             };
             self.transport
                 .send_frame(encode_rs_mit_command(
@@ -218,7 +254,12 @@ impl<T: RsMitTransport> RsAdapter<T> {
                     "motor feedback mismatch or thermal limit",
                 ));
             }
-            feedback[(expected - 1) as usize] = state;
+            let index = (expected - 1) as usize;
+            feedback[index] = crate::RsMitFeedback {
+                position_rad: self.directions[index]
+                    * (state.position_rad - self.zero_offsets_rad[index]),
+                ..state
+            };
         }
         Ok(RsObservation {
             timestamp_ns,

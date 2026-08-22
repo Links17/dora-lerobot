@@ -8,9 +8,14 @@
    Enable implicitly.
 3. After a human-approved mechanical calibration, issue `calibrate`, then
    `enable` through Dora's lifecycle control channel.
-4. Verify MIT observations and direction at reduced speed, then test replay,
+4. Verify each configured zero offset and direction at reduced speed. Confirm
+   the gripper torque cap before applying grasp actions. Then test replay,
    local inference, cloud inference, and graph shutdown.
 
 The adapter enforces the RS MIT frame layout, joint limits, per-step relative
 target cap, monotonic timestamps, thermal stop at 80°C, and local safe-stop.
 Cloud actions cannot bypass these checks.
+
+Gravity compensation is intentionally a separate dynamics component. It must
+produce a bounded torque feed-forward action that still passes the local RS
+adapter checks; it is not enabled by this baseline acceptance profile.

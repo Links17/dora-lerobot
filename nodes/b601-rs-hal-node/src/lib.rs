@@ -27,6 +27,9 @@ pub struct RuntimeConfig {
     pub limits: [dora_lerobot_hal::RsMotorLimits; 7],
     pub kp: [f32; 7],
     pub kd: [f32; 7],
+    pub zero_offsets_rad: [f32; 7],
+    pub directions: [f32; 7],
+    pub gripper_torque_limit_nm: f32,
 }
 #[derive(Debug, Deserialize)]
 struct RawConfig {
@@ -51,11 +54,14 @@ struct RawRobot {
     calibration_id: String,
     motor_ids: Vec<u16>,
     max_relative_target_deg: f32,
+    joint_zero_offsets_rad: [f32; 7],
+    joint_directions: [f32; 7],
 }
 #[derive(Debug, Deserialize)]
 struct RawControl {
     mit_kp: [f32; 7],
     mit_kd: [f32; 7],
+    gripper_torque_limit_nm: f32,
 }
 impl RuntimeConfig {
     pub fn from_yaml(source: &str) -> Result<Self, ConfigError> {
@@ -67,6 +73,16 @@ impl RuntimeConfig {
             || !raw.robot.max_relative_target_deg.is_finite()
             || raw.robot.max_relative_target_deg <= 0.0
             || raw
+                .robot
+                .joint_zero_offsets_rad
+                .iter()
+                .any(|v| !v.is_finite())
+            || raw.robot.joint_directions[..6]
+                .iter()
+                .any(|v| !v.is_finite() || v.abs() != 1.0)
+            || !raw.robot.joint_directions[6].is_finite()
+            || raw.robot.joint_directions[6] == 0.0
+            || raw
                 .rs_control
                 .mit_kp
                 .iter()
@@ -76,6 +92,8 @@ impl RuntimeConfig {
                 .mit_kd
                 .iter()
                 .any(|v| !v.is_finite() || !(0.0..=5.0).contains(v))
+            || !raw.rs_control.gripper_torque_limit_nm.is_finite()
+            || !(0.0..=14.0).contains(&raw.rs_control.gripper_torque_limit_nm)
         {
             return Err(ConfigError::Invalid);
         }
@@ -100,6 +118,9 @@ impl RuntimeConfig {
             ],
             kp: raw.rs_control.mit_kp,
             kd: raw.rs_control.mit_kd,
+            zero_offsets_rad: raw.robot.joint_zero_offsets_rad,
+            directions: raw.robot.joint_directions,
+            gripper_torque_limit_nm: raw.rs_control.gripper_torque_limit_nm,
         })
     }
 }

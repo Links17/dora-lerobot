@@ -1,6 +1,6 @@
 use async_trait::async_trait;
 use dora_lerobot_hal::{
-    RsAdapter, RsCanFrame, RsMitError, RsMitTransport, RsMotorLimits, RsState,
+    RsAdapter, RsAdapterSettings, RsCanFrame, RsMitError, RsMitTransport, RsMotorLimits, RsState,
     encode_rs_mit_lifecycle,
 };
 use std::{
@@ -82,4 +82,31 @@ async fn rs_adapter_fails_closed_when_feedback_times_out() {
             .iter()
             .any(|frame| frame.data() == encode_rs_mit_lifecycle(1, false).unwrap().data())
     );
+}
+
+#[tokio::test]
+async fn rs_adapter_applies_calibrated_direction_and_zero_offset_at_motor_boundary() {
+    let transport = Fake::default();
+    let writes = transport.writes.clone();
+    let mut adapter = RsAdapter::new_with_settings(
+        transport,
+        RsAdapterSettings {
+            limits: LIMITS,
+            max_relative_target_rad: 10.0,
+            kp: [10.0; 7],
+            kd: [0.5; 7],
+            zero_offsets_rad: [0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            directions: [-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
+            gripper_torque_limit_nm: 3.5,
+        },
+    );
+    adapter.connect().await.unwrap();
+    adapter.accept_calibration("rs-v1").unwrap();
+    adapter.enable().await.unwrap();
+    adapter
+        .apply_action([1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 1)
+        .await
+        .unwrap();
+    // Motor target is zero + direction * robot target: 0.5 - 1.0 = -0.5 rad.
+    assert_eq!(writes.lock().unwrap()[14].data()[0..2], [0x7a, 0xe8]);
 }

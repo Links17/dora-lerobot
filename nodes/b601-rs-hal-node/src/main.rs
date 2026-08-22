@@ -1,5 +1,5 @@
 use b601_rs_hal_node::{RuntimeConfig, is_discovery_request, parse_lifecycle};
-use dora_lerobot_hal::{HalRsCanTransport, RsAdapter};
+use dora_lerobot_hal::{HalRsCanTransport, RsAdapter, RsAdapterSettings};
 use dora_node_api::{DoraNode, Event, arrow::array::StringArray, dora_core::config::DataId};
 use eyre::{Context, Result};
 use seeed_hal_adapter_socketcan::SocketCanAdapter;
@@ -44,12 +44,17 @@ fn main() -> Result<()> {
         config.resource,
         config.receive_timeout,
     ))?;
-    let mut adapter = RsAdapter::new_with_gains(
+    let mut adapter = RsAdapter::new_with_settings(
         transport,
-        config.limits,
-        config.max_relative_target_rad,
-        config.kp,
-        config.kd,
+        RsAdapterSettings {
+            limits: config.limits,
+            max_relative_target_rad: config.max_relative_target_rad,
+            kp: config.kp,
+            kd: config.kd,
+            zero_offsets_rad: config.zero_offsets_rad,
+            directions: config.directions,
+            gripper_torque_limit_nm: config.gripper_torque_limit_nm,
+        },
     );
     tokio.block_on(adapter.connect())?;
     let (mut node, mut events) = DoraNode::init_from_env()?;
@@ -108,6 +113,7 @@ fn main() -> Result<()> {
             _ => {}
         }
     }
+    tokio.block_on(adapter.safe_stop())?;
     Ok(())
 }
 fn lifecycle<T: dora_lerobot_hal::RsMitTransport>(
