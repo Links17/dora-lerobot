@@ -1,15 +1,15 @@
 nodes:
   - id: b601-rs
+    path: cargo
+    args: run --quiet -p b601-rs-hal-node
+    inputs: {tick: dora/timer/millis/20, action: teleoperator/action}
+    outputs: [observation, safe_action, status]
+  - id: teleoperator
     path: uv
-    args: [run, python, -m, dora_lerobot.runtime.b601_node]
-    inputs:
-      tick: dora/timer/millis/20
-      action: teleoperator/action
-    outputs: [observation, safe_action]
+    args: run python -m dora_lerobot.nodes.teleoperator_node
+    inputs: {leader_action: leader/action}
+    outputs: [action]
   - id: recorder
     path: uv
-    args: [run, python, -m, dora_lerobot.nodes.recorder_node]
-    inputs:
-      observation: b601-rs/observation
-      action: b601-rs/safe_action
-      save_episode: dora/keyboard/space
+    args: run python -m dora_lerobot.nodes.recorder_node
+    inputs: {observation: b601-rs/observation, action: b601-rs/safe_action}

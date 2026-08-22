@@ -1,0 +1,16 @@
+# Copy outside the repository and replace the discovered stable CAN resource id.
+owner: dora-b601-rs
+resource:
+  id: replace-with-discovered-can-resource-id
+  minimum_identity_quality: Weak
+  transport: Can
+can:
+  receive_timeout_ms: 20
+robot:
+  calibration_id: replace-with-human-approved-calibration-id
+  motor_ids: [1, 2, 3, 4, 5, 6, 7]
+  max_relative_target_deg: 10.0
+rs_control:
+  # B601-RS motor order: rs-06 x3, then rs-00 x4 (including gripper).
+  mit_kp: [50.0, 50.0, 50.0, 30.0, 50.0, 50.0, 12.0]
+  mit_kd: [3.0, 5.0, 5.0, 3.0, 4.0, 4.0, 0.05]

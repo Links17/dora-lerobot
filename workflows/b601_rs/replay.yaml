@@ -1,13 +1,11 @@
 nodes:
   - id: replay
     path: uv
-    args: [run, python, -m, dora_lerobot.nodes.replay_node]
-    inputs:
-      tick: dora/timer/millis/20
+    args: run python -m dora_lerobot.nodes.replay_node
+    inputs: {tick: dora/timer/millis/20}
     outputs: [action]
   - id: b601-rs
-    path: uv
-    args: [run, python, -m, dora_lerobot.runtime.b601_node]
-    inputs:
-      action: replay/action
-    outputs: [safe_action]
+    path: cargo
+    args: run --quiet -p b601-rs-hal-node
+    inputs: {action: replay/action}
+    outputs: [safe_action, status]

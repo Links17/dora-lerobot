@@ -1,0 +1,14 @@
+nodes:
+  - id: b601-rs
+    path: cargo
+    args: run --quiet -p b601-rs-hal-node
+    inputs:
+      tick: dora/timer/millis/20
+      action: teleoperator/action
+    outputs: [observation, safe_action, status]
+  - id: teleoperator
+    path: uv
+    args: run python -m dora_lerobot.nodes.teleoperator_node
+    inputs:
+      leader_action: leader/action
+    outputs: [action]

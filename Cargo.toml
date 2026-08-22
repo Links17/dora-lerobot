@@ -3,6 +3,7 @@ members = [
     "crates/dora-lerobot-hal",
     "nodes/so-arm-hal-node",
     "nodes/b601-dm-hal-node",
+    "nodes/b601-rs-hal-node",
     "robots/aloha/nodes/aloha-teleop",
     "robots/aloha/nodes/aloha-client",
 ]
