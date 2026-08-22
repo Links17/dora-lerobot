@@ -1,0 +1,22 @@
+# This file is consumed by an operator launcher, never by a Dora graph.
+robot:
+  robot_id: so-arm-follower-01
+  max_control_hz: 30
+  has_gripper: true
+  joints:
+    - {name: shoulder_pan, minimum_rad: -2.8, maximum_rad: 2.8}
+    - {name: shoulder_lift, minimum_rad: -1.8, maximum_rad: 1.8}
+    - {name: elbow_flex, minimum_rad: -2.2, maximum_rad: 2.2}
+    - {name: wrist_flex, minimum_rad: -2.8, maximum_rad: 2.8}
+    - {name: wrist_roll, minimum_rad: -3.14, maximum_rad: 3.14}
+    - {name: gripper, minimum_rad: 0.0, maximum_rad: 1.0}
+follower:
+  device_id: so-arm-follower-01
+  port: /dev/tty.usbmodemREPLACE_ME
+  calibration_dir: ~/.cache/lerobot/calibration/robots/so_follower
+  calibration_profile: ~/.config/dora-lerobot/calibrations/so-arm-follower-01.json
+leader:
+  device_id: so-arm-leader-01
+  port: /dev/tty.usbmodemREPLACE_ME_LEADER
+  calibration_dir: ~/.cache/lerobot/calibration/teleoperators/so_leader
+  calibration_profile: ~/.config/dora-lerobot/calibrations/so-arm-leader-01.json

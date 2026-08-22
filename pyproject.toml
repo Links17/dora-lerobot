@@ -20,6 +20,7 @@ dev = ["pytest>=8.3", "ruff>=0.11"]
 
 [project.scripts]
 dora-lerobot-so-arm = "dora_lerobot.adapters.so_arm:main"
+dora-lerobot-so-arm-hardware = "dora_lerobot.runtime.so_arm:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/dora_lerobot"]

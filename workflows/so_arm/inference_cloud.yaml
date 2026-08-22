@@ -1,7 +1,7 @@
 nodes:
   - id: so-arm
     path: uv
-    args: [run, python, -m, dora_lerobot.nodes.so_arm_node]
+    args: [run, python, -m, dora_lerobot.runtime.so_arm_node]
     inputs:
       tick: dora/timer/millis/33
       action: cloud-policy/action

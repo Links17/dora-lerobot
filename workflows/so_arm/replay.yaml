@@ -7,7 +7,7 @@ nodes:
     outputs: [action]
   - id: so-arm
     path: uv
-    args: [run, python, -m, dora_lerobot.nodes.so_arm_node]
+    args: [run, python, -m, dora_lerobot.runtime.so_arm_node]
     inputs:
       action: replay/action
     outputs: [safe_action]

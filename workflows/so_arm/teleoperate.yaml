@@ -1,7 +1,7 @@
 nodes:
   - id: so-arm
     path: uv
-    args: [run, python, -m, dora_lerobot.nodes.so_arm_node]
+    args: [run, python, -m, dora_lerobot.runtime.so_arm_node]
     inputs:
       tick: dora/timer/millis/33
       calibrate: dora/keyboard/c
@@ -11,7 +11,7 @@ nodes:
     outputs: [observation, safe_action]
   - id: teleoperator
     path: uv
-    args: [run, python, -m, dora_lerobot.nodes.teleoperator_node]
+    args: [run, python, -m, dora_lerobot.runtime.so_arm_teleop_node]
     inputs:
-      observation: so-arm/observation
+      tick: dora/timer/millis/33
     outputs: [action]
