@@ -1,6 +1,8 @@
 use async_trait::async_trait;
 use dora_lerobot_hal::{
-    DamiaoCanFrame, DamiaoCommand, DamiaoSerialBus, DamiaoSerialIo, encode_damiao_command,
+    DamiaoCanFrame, DamiaoCommand, DamiaoControlMode, DamiaoSerialBus, DamiaoSerialIo,
+    DamiaoStatus, decode_damiao_feedback, encode_damiao_command, encode_damiao_lifecycle,
+    encode_damiao_mode,
 };
 use std::collections::VecDeque;
 use std::sync::{Arc, Mutex};
@@ -108,4 +110,41 @@ fn dm_gripper_force_position_command_scales_and_caps_velocity_and_torque() {
     .unwrap();
 
     assert_eq!(frame.data(), [0, 0, 0, 0xbf, 0x10, 0x27, 0x10, 0x27]);
+}
+
+#[test]
+fn dm_lifecycle_and_mode_frames_use_the_vendor_protocol_constants() {
+    // This catches a mode switch or safe stop being sent as a position command.
+    assert_eq!(
+        encode_damiao_lifecycle(1, DamiaoStatus::Disable)
+            .unwrap()
+            .data(),
+        [0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xfd]
+    );
+    assert_eq!(
+        encode_damiao_mode(7, DamiaoControlMode::ForcePosition)
+            .unwrap()
+            .data(),
+        [7, 0, 0x55, 10, 4, 0, 0, 0]
+    );
+}
+
+#[test]
+fn dm_feedback_decodes_status_position_velocity_torque_and_temperatures() {
+    // This catches accepting a motor fault as ordinary enabled feedback.
+    let feedback = decode_damiao_feedback(
+        [0xa3, 0x8f, 0xff, 0x80, 0x08, 0x00, 91, 63],
+        12.5,
+        10.0,
+        28.0,
+    )
+    .unwrap();
+
+    assert_eq!(feedback.motor_id, 3);
+    assert_eq!(feedback.status_code, 0x0a);
+    assert!((feedback.position_rad - 1.5624).abs() < 0.001);
+    assert!((feedback.velocity_rad_s - 0.0).abs() < 0.02);
+    assert!((feedback.torque_nm - 0.0).abs() < 0.02);
+    assert_eq!(feedback.mos_temperature_c, 91);
+    assert_eq!(feedback.rotor_temperature_c, 63);
 }

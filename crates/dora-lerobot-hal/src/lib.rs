@@ -6,8 +6,9 @@
 mod damiao;
 
 pub use damiao::{
-    DamiaoCanFrame, DamiaoCommand, DamiaoError, DamiaoSerialBus, DamiaoSerialIo,
-    encode_damiao_command,
+    DamiaoCanFrame, DamiaoCommand, DamiaoControlMode, DamiaoError, DamiaoFeedback, DamiaoSerialBus,
+    DamiaoSerialIo, DamiaoStatus, decode_damiao_feedback, encode_damiao_command,
+    encode_damiao_lifecycle, encode_damiao_mode,
 };
 
 use async_trait::async_trait;

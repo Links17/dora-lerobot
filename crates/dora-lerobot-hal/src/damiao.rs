@@ -53,16 +53,114 @@ pub enum DamiaoCommand {
     },
 }
 
-/// Encodes a B601 DM control command into its standard CAN payload.
-pub fn encode_damiao_command(
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum DamiaoStatus {
+    Enable,
+    Disable,
+    SetZero,
+    ClearFault,
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum DamiaoControlMode {
+    Mit = 1,
+    PositionVelocity = 2,
+    Velocity = 3,
+    ForcePosition = 4,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct DamiaoFeedback {
+    pub motor_id: u8,
+    pub status_code: u8,
+    pub position_rad: f32,
+    pub velocity_rad_s: f32,
+    pub torque_nm: f32,
+    pub mos_temperature_c: u8,
+    pub rotor_temperature_c: u8,
+}
+
+pub fn encode_damiao_lifecycle(
     motor_id: u16,
-    command: DamiaoCommand,
+    status: DamiaoStatus,
 ) -> Result<DamiaoCanFrame, DamiaoError> {
+    let last = match status {
+        DamiaoStatus::Enable => 0xfc,
+        DamiaoStatus::Disable => 0xfd,
+        DamiaoStatus::SetZero => 0xfe,
+        DamiaoStatus::ClearFault => 0xfb,
+    };
+    command_frame(motor_id, [0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, last])
+}
+
+pub fn encode_damiao_mode(
+    motor_id: u16,
+    mode: DamiaoControlMode,
+) -> Result<DamiaoCanFrame, DamiaoError> {
+    command_frame(
+        motor_id,
+        [
+            motor_id as u8,
+            (motor_id >> 8) as u8,
+            0x55,
+            10,
+            mode as u8,
+            0,
+            0,
+            0,
+        ],
+    )
+}
+
+pub fn decode_damiao_feedback(
+    data: [u8; 8],
+    position_limit_rad: f32,
+    velocity_limit_rad_s: f32,
+    torque_limit_nm: f32,
+) -> Result<DamiaoFeedback, DamiaoError> {
+    if !position_limit_rad.is_finite()
+        || !velocity_limit_rad_s.is_finite()
+        || !torque_limit_nm.is_finite()
+        || position_limit_rad <= 0.0
+        || velocity_limit_rad_s <= 0.0
+        || torque_limit_nm <= 0.0
+    {
+        return Err(DamiaoError::Frame(
+            "feedback limits must be finite and positive",
+        ));
+    }
+    let position = u16::from_be_bytes([data[1], data[2]]) as u32;
+    let velocity = (u32::from(data[3]) << 4) | (u32::from(data[4]) >> 4);
+    let torque = ((u32::from(data[4]) & 0x0f) << 8) | u32::from(data[5]);
+    Ok(DamiaoFeedback {
+        motor_id: data[0] & 0x0f,
+        status_code: data[0] >> 4,
+        position_rad: uint_to_range(position, -position_limit_rad, position_limit_rad, 16),
+        velocity_rad_s: uint_to_range(velocity, -velocity_limit_rad_s, velocity_limit_rad_s, 12),
+        torque_nm: uint_to_range(torque, -torque_limit_nm, torque_limit_nm, 12),
+        mos_temperature_c: data[6],
+        rotor_temperature_c: data[7],
+    })
+}
+
+fn command_frame(motor_id: u16, data: [u8; 8]) -> Result<DamiaoCanFrame, DamiaoError> {
     if motor_id > 0x7ff {
         return Err(DamiaoError::Frame(
             "motor CAN ID exceeds 11-bit standard range",
         ));
     }
+    Ok(DamiaoCanFrame::standard(motor_id, data))
+}
+
+fn uint_to_range(value: u32, minimum: f32, maximum: f32, bits: u8) -> f32 {
+    value as f32 * (maximum - minimum) / ((1u32 << bits) - 1) as f32 + minimum
+}
+
+/// Encodes a B601 DM control command into its standard CAN payload.
+pub fn encode_damiao_command(
+    motor_id: u16,
+    command: DamiaoCommand,
+) -> Result<DamiaoCanFrame, DamiaoError> {
     let data = match command {
         DamiaoCommand::PositionVelocity {
             position_rad,
@@ -98,7 +196,7 @@ pub fn encode_damiao_command(
             data
         }
     };
-    Ok(DamiaoCanFrame::standard(motor_id, data))
+    command_frame(motor_id, data)
 }
 
 impl DamiaoCanFrame {
