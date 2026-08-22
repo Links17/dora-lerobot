@@ -1,4 +1,7 @@
-use dora_lerobot_hal::{JointCalibration, JointLimit, SoArmConfig, SoArmState, open_so_arm};
+use dora_lerobot_hal::{
+    DamiaoCanFrame, HalSerialIo, JointCalibration, JointLimit, SoArmConfig, SoArmState,
+    open_damiao_serial, open_so_arm,
+};
 use seeed_hal_core::{IdentityQuality, OwnerId, ResourceId, ResourceSelector, TransportKind};
 use seeed_hal_runtime::HalRuntime;
 use seeed_hal_serial::SerialConfig;
@@ -63,4 +66,36 @@ async fn hal_session_is_exclusive_and_released_after_safe_close() {
     .close()
     .await
     .unwrap();
+}
+
+#[tokio::test]
+async fn damiao_transport_uses_the_hal_serial_lease() {
+    // This catches a DM transport that opens a device path outside HAL, bypassing
+    // the exclusive resource ownership contract.
+    let runtime = HalRuntime::builder()
+        .serial_adapter(VirtualSerialAdapter::loopback("damiao-virtual"))
+        .build();
+    let owner = OwnerId::parse("dm-node").unwrap();
+    let selector = ResourceSelector::exact(
+        ResourceId::parse("damiao-virtual").unwrap(),
+        IdentityQuality::Strong,
+        TransportKind::Serial,
+    );
+    let mut bus = open_damiao_serial(
+        &runtime,
+        owner.clone(),
+        selector.clone(),
+        SerialConfig::default(),
+    )
+    .await
+    .unwrap();
+
+    assert!(
+        HalSerialIo::open(&runtime, owner, selector, SerialConfig::default())
+            .await
+            .is_err()
+    );
+    bus.send(DamiaoCanFrame::standard(1, [0; 8])).await.unwrap();
+
+    bus.into_serial().close().await.unwrap();
 }

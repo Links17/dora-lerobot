@@ -3,6 +3,13 @@
 //! This crate deliberately contains device protocol semantics above Seeed HAL.
 //! HAL remains responsible only for transport resources and their leases.
 
+mod damiao;
+
+pub use damiao::{
+    DamiaoCanFrame, DamiaoCommand, DamiaoError, DamiaoSerialBus, DamiaoSerialIo,
+    encode_damiao_command,
+};
+
 use async_trait::async_trait;
 use bytes::Bytes;
 use seeed_hal_core::{HalError, OwnerId, ResourceSelector};
@@ -81,6 +88,37 @@ impl SerialIo for HalSerialIo {
     async fn read_some(&mut self, max_bytes: usize) -> Result<Vec<u8>, FeetechError> {
         Ok(self.handle.read(max_bytes).await?.to_vec())
     }
+}
+
+#[async_trait]
+impl DamiaoSerialIo for HalSerialIo {
+    async fn write_all(&mut self, bytes: &[u8]) -> Result<(), DamiaoError> {
+        SerialIo::write_all(self, bytes)
+            .await
+            .map_err(|error| DamiaoError::Transport(error.to_string()))
+    }
+
+    async fn read_some(&mut self, max_bytes: usize) -> Result<Vec<u8>, DamiaoError> {
+        SerialIo::read_some(self, max_bytes)
+            .await
+            .map_err(|error| DamiaoError::Transport(error.to_string()))
+    }
+}
+
+/// Opens the Damiao USB-to-CAN serial bridge through a HAL-owned serial lease.
+///
+/// The returned transport has no motor semantics: it only translates serial
+/// bridge envelopes into classic CAN frames for a Damiao driver.
+pub async fn open_damiao_serial(
+    runtime: &HalRuntime,
+    owner: OwnerId,
+    selector: ResourceSelector,
+    config: SerialConfig,
+) -> Result<DamiaoSerialBus<HalSerialIo>, DamiaoError> {
+    let serial = HalSerialIo::open(runtime, owner, selector, config)
+        .await
+        .map_err(|error| DamiaoError::Transport(error.to_string()))?;
+    Ok(DamiaoSerialBus::new(serial))
 }
 
 /// Feetech protocol-0 bus used by the SO-ARM STS3215 family.
