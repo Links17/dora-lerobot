@@ -8,8 +8,7 @@ nodes:
     outputs: [observation, safe_action, status]
   - id: recorder
     path: uv
-    args: [run, python, -m, dora_lerobot.nodes.recorder_node]
+    args: run python -m dora_lerobot.nodes.recorder_node
     inputs:
       observation: b601-dm/observation
       action: b601-dm/safe_action
-      save_episode: dora/keyboard/space

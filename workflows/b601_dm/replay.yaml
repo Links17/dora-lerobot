@@ -1,7 +1,7 @@
 nodes:
   - id: replay
     path: uv
-    args: [run, python, -m, dora_lerobot.nodes.replay_node]
+    args: run python -m dora_lerobot.nodes.replay_node
     inputs:
       tick: dora/timer/millis/20
     outputs: [action]

@@ -8,7 +8,7 @@ nodes:
     outputs: [observation, safe_action, status]
   - id: cloud-policy
     path: uv
-    args: [run, python, -m, dora_lerobot.nodes.cloud_policy_node]
+    args: run python -m dora_lerobot.nodes.cloud_policy_node
     inputs:
       observation: b601-dm/observation
     outputs: [action]

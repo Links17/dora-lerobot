@@ -8,7 +8,7 @@ nodes:
     outputs: [observation, safe_action, status]
   - id: teleoperator
     path: uv
-    args: [run, python, -m, dora_lerobot.nodes.teleoperator_node]
+    args: run python -m dora_lerobot.nodes.teleoperator_node
     inputs:
       leader_action: leader/action
     outputs: [action]
