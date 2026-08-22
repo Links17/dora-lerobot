@@ -5,7 +5,7 @@ nodes:
     inputs:
       tick: dora/timer/millis/33
       action: policy/action
-    outputs: [observation, safe_action]
+    outputs: [observation, safe_action, status]
   - id: policy
     path: uv
     args: run python -m dora_lerobot.nodes.policy_node

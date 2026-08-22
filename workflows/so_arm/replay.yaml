@@ -10,4 +10,4 @@ nodes:
     args: run --quiet -p so-arm-hal-node
     inputs:
       action: replay/action
-    outputs: [safe_action]
+    outputs: [safe_action, status]

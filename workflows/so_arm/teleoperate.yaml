@@ -5,7 +5,7 @@ nodes:
     inputs:
       tick: dora/timer/millis/33
       action: teleoperator/action
-    outputs: [observation, safe_action]
+    outputs: [observation, safe_action, status]
   - id: teleoperator
     path: uv
     args: run python -m dora_lerobot.runtime.so_arm_teleop_node

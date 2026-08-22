@@ -6,7 +6,9 @@ use eyre::{Context, Result, bail};
 use seeed_hal_adapter_serialport::SerialPortAdapter;
 use seeed_hal_runtime::HalRuntime;
 use serde::Deserialize;
-use so_arm_hal_node::{LifecycleCommand, RuntimeConfig, parse_lifecycle};
+use so_arm_hal_node::{
+    LifecycleCommand, RuntimeConfig, is_recoverable_action_error, parse_lifecycle,
+};
 use std::fs;
 use std::time::{SystemTime, UNIX_EPOCH};
 
@@ -99,9 +101,27 @@ fn run(
                     .positions_rad
                     .try_into()
                     .map_err(|_| eyre::eyre!("SO-ARM action must contain six positions"))?;
-                let applied = tokio.block_on(
+                let applied = match tokio.block_on(
                     adapter.apply_action(SoArmAction::new(positions_rad, message.timestamp_ns)),
-                )?;
+                ) {
+                    Ok(applied) => applied,
+                    Err(error) if is_recoverable_action_error(&error) => {
+                        let status = serde_json::json!({
+                            "schema_version": "v1",
+                            "timestamp_ns": now_ns(),
+                            "state": format!("{:?}", adapter.state()),
+                            "fault": error.to_string(),
+                        })
+                        .to_string();
+                        node.send_output(
+                            DataId::from("status".to_owned()),
+                            Default::default(),
+                            StringArray::from(vec![status.as_str()]),
+                        )?;
+                        continue;
+                    }
+                    Err(error) => return Err(error.into()),
+                };
                 let output = serde_json::json!({
                     "schema_version": "v1",
                     "timestamp_ns": applied.timestamp_ns,

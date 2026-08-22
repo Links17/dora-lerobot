@@ -55,6 +55,14 @@ pub fn parse_lifecycle(value: &serde_json::Value) -> Result<LifecycleCommand, Co
     }
 }
 
+/// Safety rejections are reported to the workflow but do not crash the local node.
+pub fn is_recoverable_action_error(error: &SoArmError) -> bool {
+    matches!(
+        error,
+        SoArmError::InvalidState { .. } | SoArmError::InvalidTimestamp { .. }
+    )
+}
+
 #[derive(Deserialize)]
 struct RawConfig {
     owner: String,
