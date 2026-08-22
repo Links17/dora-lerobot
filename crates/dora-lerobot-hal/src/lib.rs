@@ -4,12 +4,14 @@
 //! HAL remains responsible only for transport resources and their leases.
 
 mod damiao;
+mod dm_adapter;
 
 pub use damiao::{
     DamiaoCanFrame, DamiaoCommand, DamiaoControlMode, DamiaoError, DamiaoFeedback, DamiaoSerialBus,
     DamiaoSerialIo, DamiaoStatus, decode_damiao_feedback, encode_damiao_command,
     encode_damiao_lifecycle, encode_damiao_mode, is_damiao_mode_ack,
 };
+pub use dm_adapter::{B601_DM_MOTOR_IDS, DamiaoTransport, DmAdapter, DmState};
 
 use async_trait::async_trait;
 use bytes::Bytes;
