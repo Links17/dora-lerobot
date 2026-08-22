@@ -1,0 +1,19 @@
+[package]
+name = "dora-lerobot-hal"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+publish = false
+
+[dependencies]
+async-trait = "0.1"
+bytes = "1"
+thiserror = "2"
+tokio = { version = "1", features = ["sync"] }
+seeed-hal-core = { path = "../../../links/seeed-robotic/seeed-hal/crates/seeed-hal-core" }
+seeed-hal-runtime = { path = "../../../links/seeed-robotic/seeed-hal/crates/seeed-hal-runtime" }
+seeed-hal-serial = { path = "../../../links/seeed-robotic/seeed-hal/crates/seeed-hal-serial" }
+
+[dev-dependencies]
+tokio = { version = "1", features = ["macros", "rt"] }
+seeed-hal-testkit = { path = "../../../links/seeed-robotic/seeed-hal/crates/seeed-hal-testkit" }

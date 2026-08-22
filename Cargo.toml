@@ -1,5 +1,6 @@
 [workspace]
 members = [
+    "crates/dora-lerobot-hal",
     "robots/aloha/nodes/aloha-teleop",
     "robots/aloha/nodes/aloha-client",
 ]
