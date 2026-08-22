@@ -1,11 +1,11 @@
 nodes:
   - id: b601-dm
-    path: uv
-    args: [run, python, -m, dora_lerobot.runtime.b601_node]
+    path: cargo
+    args: run --quiet -p b601-dm-hal-node
     inputs:
       tick: dora/timer/millis/20
       action: teleoperator/action
-    outputs: [observation, safe_action]
+    outputs: [observation, safe_action, status]
   - id: recorder
     path: uv
     args: [run, python, -m, dora_lerobot.nodes.recorder_node]

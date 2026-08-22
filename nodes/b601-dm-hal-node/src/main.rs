@@ -12,11 +12,22 @@ use std::{
 
 #[derive(Debug, Deserialize)]
 struct ActionMessage {
+    schema_version: String,
+    joint_names: [String; 7],
     positions_rad: [f32; 7],
     timestamp_ns: u64,
-    velocity_limit_rad_s: f32,
-    torque_limit_ratio: f32,
+    control_mode: String,
 }
+
+const B601_JOINTS: [&str; 7] = [
+    "shoulder_pan",
+    "shoulder_lift",
+    "elbow_flex",
+    "wrist_flex",
+    "wrist_yaw",
+    "wrist_roll",
+    "gripper",
+];
 
 fn main() -> Result<()> {
     if is_discovery_request(std::env::args()) {
@@ -55,11 +66,26 @@ fn main() -> Result<()> {
             Event::Input { id, data, .. } if id.as_str() == "action" => {
                 let values: StringArray = data.to_data().into();
                 let action: ActionMessage = serde_json::from_str(values.value(0))?;
+                if action.schema_version != "v1"
+                    || action.control_mode != "position"
+                    || action
+                        .joint_names
+                        .iter()
+                        .map(String::as_str)
+                        .ne(B601_JOINTS)
+                {
+                    send_status(
+                        &mut node,
+                        &adapter,
+                        "action does not match B601-DM v1 position contract",
+                    )?;
+                    continue;
+                }
                 match tokio.block_on(adapter.apply_action(DamiaoAction::new(
                     action.positions_rad,
                     action.timestamp_ns,
-                    action.velocity_limit_rad_s,
-                    action.torque_limit_ratio,
+                    1.0,
+                    0.2,
                 ))) {
                     Ok(()) => node.send_output(
                         DataId::from("safe_action".to_owned()),
@@ -75,10 +101,8 @@ fn main() -> Result<()> {
                         let message = serde_json::json!({
                             "schema_version": "v1",
                             "timestamp_ns": observation.timestamp_ns,
-                            "joint_ids": [1, 2, 3, 4, 5, 6, 7],
-                            "positions_rad": observation.feedback.map(|feedback| feedback.position_rad),
-                            "velocities_rad_s": observation.feedback.map(|feedback| feedback.velocity_rad_s),
-                            "torques_nm": observation.feedback.map(|feedback| feedback.torque_nm),
+                            "joints_rad": B601_JOINTS.into_iter().zip(observation.feedback.map(|feedback| feedback.position_rad)).map(|(name, position)| (name.to_owned(), serde_json::json!(position))).collect::<serde_json::Map<_, _>>(),
+                            "fault": serde_json::Value::Null,
                         }).to_string();
                         node.send_output(
                             DataId::from("observation".to_owned()),

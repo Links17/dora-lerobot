@@ -4,11 +4,11 @@ nodes:
     args: run --quiet -p b601-dm-hal-node
     inputs:
       tick: dora/timer/millis/20
-      action: policy/action
+      action: teleoperator/action
     outputs: [observation, safe_action, status]
-  - id: policy
+  - id: teleoperator
     path: uv
-    args: [run, python, -m, dora_lerobot.nodes.policy_node]
+    args: [run, python, -m, dora_lerobot.nodes.teleoperator_node]
     inputs:
-      observation: b601-dm/observation
+      leader_action: leader/action
     outputs: [action]

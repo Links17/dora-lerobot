@@ -6,8 +6,8 @@ nodes:
       tick: dora/timer/millis/20
     outputs: [action]
   - id: b601-dm
-    path: uv
-    args: [run, python, -m, dora_lerobot.runtime.b601_node]
+    path: cargo
+    args: run --quiet -p b601-dm-hal-node
     inputs:
       action: replay/action
-    outputs: [safe_action]
+    outputs: [safe_action, status]

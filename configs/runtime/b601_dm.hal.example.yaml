@@ -1,0 +1,13 @@
+# Copy outside the repository after `cargo run -p b601-dm-hal-node -- --discover`.
+# Use the stable HAL resource id, never a /dev/tty path.
+owner: dora-b601-dm
+resource:
+  id: replace-with-discovered-resource-id
+  minimum_identity_quality: Weak
+  transport: Serial
+serial:
+  baud_rate: 921600
+  read_timeout_ms: 20
+robot:
+  calibration_id: replace-with-human-approved-calibration-id
+  motor_ids: [1, 2, 3, 4, 5, 6, 7]
