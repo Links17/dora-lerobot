@@ -11,6 +11,7 @@ requires-python = ">=3.12,<3.13"
 dependencies = [
   "dora-rs @ git+https://github.com/dora-rs/dora.git@v1.0.0-rc.4#subdirectory=apis/python/node",
   "lerobot[dataset,feetech]==0.6.1",
+  "lerobot-robot-seeed-b601 @ git+https://github.com/Seeed-Projects/lerobot-robot-seeed-b601.git@27b97166f49165c181bcf48db641324c81a37760",
   "numpy>=2.0,<2.3",
   "pyyaml>=6.0",
 ]
@@ -21,6 +22,8 @@ dev = ["pytest>=8.3", "ruff>=0.11"]
 [project.scripts]
 dora-lerobot-so-arm = "dora_lerobot.adapters.so_arm:main"
 dora-lerobot-so-arm-hardware = "dora_lerobot.runtime.so_arm:main"
+dora-lerobot-dm-hardware = "dora_lerobot.runtime.b601:dm_main"
+dora-lerobot-rs-hardware = "dora_lerobot.runtime.b601:rs_main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/dora_lerobot"]

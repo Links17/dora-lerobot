@@ -1,0 +1,29 @@
+# Operator configuration; SocketCAN setup belongs to the host, not this graph.
+robot:
+  robot_id: b601-rs-01
+  max_control_hz: 50
+  has_gripper: true
+  joints:
+    - {name: shoulder_pan, minimum_rad: -2.53, maximum_rad: 2.53}
+    - {name: shoulder_lift, minimum_rad: 0.0, maximum_rad: 2.97}
+    - {name: elbow_flex, minimum_rad: 0.0, maximum_rad: 3.49}
+    - {name: wrist_flex, minimum_rad: -1.40, maximum_rad: 1.57}
+    - {name: wrist_yaw, minimum_rad: -1.57, maximum_rad: 1.57}
+    - {name: wrist_roll, minimum_rad: -2.27, maximum_rad: 2.27}
+    - {name: gripper, minimum_rad: 0.0, maximum_rad: 4.71}
+device:
+  device_id: b601-rs-01
+  channel: can0
+  calibration_dir: ~/.cache/lerobot/calibration/robots/seeed_b601_rs_follower
+  calibration_profile: ~/.config/dora-lerobot/calibrations/b601-rs-01.json
+rs_control:
+  # All values are vendor MIT gains/limits, never workflow parameters.
+  mit_kp: {shoulder_pan: 50, shoulder_lift: 150, elbow_flex: 150, wrist_flex: 50, wrist_yaw: 50, wrist_roll: 50}
+  mit_kd: {shoulder_pan: 3, shoulder_lift: 10, elbow_flex: 10, wrist_flex: 5, wrist_yaw: 4, wrist_roll: 4}
+  gripper_mit_kp: 24
+  gripper_mit_torque_limit: 10
+  gripper_mit_hold_torque_limit: 10
+  max_relative_target_deg: 10
+  gravity_compensation: true
+  # Set this to a deployment-owned URDF path when the vendor package does not bundle it.
+  gravity_urdf_path: null

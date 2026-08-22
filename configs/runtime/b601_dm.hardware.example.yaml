@@ -1,0 +1,19 @@
+# Operator configuration; never load this file directly from a Dora graph.
+robot:
+  robot_id: b601-dm-01
+  max_control_hz: 50
+  has_gripper: true
+  joints:
+    - {name: shoulder_pan, minimum_rad: -2.53, maximum_rad: 2.53}
+    - {name: shoulder_lift, minimum_rad: -2.97, maximum_rad: 0.0}
+    - {name: elbow_flex, minimum_rad: -3.49, maximum_rad: 0.0}
+    - {name: wrist_flex, minimum_rad: -1.40, maximum_rad: 1.57}
+    - {name: wrist_yaw, minimum_rad: -1.57, maximum_rad: 1.57}
+    - {name: wrist_roll, minimum_rad: -2.27, maximum_rad: 2.27}
+    - {name: gripper, minimum_rad: -4.71, maximum_rad: 0.0}
+device:
+  device_id: b601-dm-01
+  channel: /dev/tty.usbmodemREPLACE_ME
+  dm_serial_baud: 921600
+  calibration_dir: ~/.cache/lerobot/calibration/robots/seeed_b601_dm_follower
+  calibration_profile: ~/.config/dora-lerobot/calibrations/b601-dm-01.json

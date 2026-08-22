@@ -1,0 +1,14 @@
+nodes:
+  - id: b601-rs
+    path: uv
+    args: [run, python, -m, dora_lerobot.runtime.b601_node]
+    inputs:
+      tick: dora/timer/millis/20
+      action: cloud-policy/action
+    outputs: [observation, safe_action]
+  - id: cloud-policy
+    path: uv
+    args: [run, python, -m, dora_lerobot.nodes.cloud_policy_node]
+    inputs:
+      observation: b601-rs/observation
+    outputs: [action]

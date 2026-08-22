@@ -1,0 +1,15 @@
+nodes:
+  - id: b601-dm
+    path: uv
+    args: [run, python, -m, dora_lerobot.runtime.b601_node]
+    inputs:
+      tick: dora/timer/millis/20
+      action: teleoperator/action
+    outputs: [observation, safe_action]
+  - id: recorder
+    path: uv
+    args: [run, python, -m, dora_lerobot.nodes.recorder_node]
+    inputs:
+      observation: b601-dm/observation
+      action: b601-dm/safe_action
+      save_episode: dora/keyboard/space

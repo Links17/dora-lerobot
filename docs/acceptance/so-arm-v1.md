@@ -25,3 +25,18 @@ disabled and only enable it from the explicit Dora `enable` input.
 - [ ] Replay the episode at reduced speed with an operator present.
 - [ ] Run a local policy only after replay completes safely.
 - [ ] Verify graph shutdown invokes `safe_stop` and leaves torque disabled.
+
+## B601 DM / RS extension
+
+Use the corresponding templates in `configs/runtime/`. DM needs the Damiao
+USB-CAN bridge; RS needs an already configured SocketCAN channel. Both use an
+explicit mechanical-zero procedure and normal operation starts torque-disabled:
+
+```bash
+uv run dora-lerobot-dm-hardware --hardware-config /secure/b601-dm.yaml --calibrate
+uv run dora-lerobot-rs-hardware --hardware-config /secure/b601-rs.yaml --calibrate
+```
+
+For a Dora B601 workflow, set `DORA_LEROBOT_B601_CONFIG` to that secure file and
+`DORA_LEROBOT_B601_KIND` to `dm` or `rs`. The RS configuration owns its vendor
+MIT gains, target cap and gravity-compensation setting; workflows do not.
