@@ -1,7 +1,7 @@
 use dora_node_api::{
     arrow::array::Float64Array, dora_core::config::DataId, DoraNode, Event, IntoArrow,
 };
-use eyre::{Context, Result};
+use eyre::Result;
 use rustypot::{device::xm, DynamixelSerialIO};
 use std::time::Duration;
 
@@ -43,10 +43,7 @@ fn main() -> Result<()> {
     {
         match id.as_str() {
             "puppet_goal_position" => {
-                let buffer: Float64Array = data
-                    .to_data()
-                    .try_into()
-                    .context("Could not parse `puppet_goal_position` as float64")?;
+                let buffer: Float64Array = data.to_data().into();
                 let target: &[f64] = buffer.values();
                 let mut angular = target
                     .iter()

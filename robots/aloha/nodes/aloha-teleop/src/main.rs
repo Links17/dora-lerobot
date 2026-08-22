@@ -236,7 +236,9 @@ fn main() -> Result<()> {
         }
     } else {
         join_left.join().unwrap();
-        join_right.map(|join| join.join().unwrap());
+        if let Some(join) = join_right {
+            join.join().unwrap();
+        }
     };
     Ok(())
 }
