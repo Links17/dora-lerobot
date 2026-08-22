@@ -1,16 +1,13 @@
 nodes:
   - id: replay
     path: uv
-    args: [run, python, -m, dora_lerobot.nodes.replay_node]
+    args: run python -m dora_lerobot.nodes.replay_node
     inputs:
       tick: dora/timer/millis/33
     outputs: [action]
   - id: so-arm
     path: cargo
-    args: [run, --quiet, -p, so-arm-hal-node]
+    args: run --quiet -p so-arm-hal-node
     inputs:
-      calibrate: dora/keyboard/c
-      enable: dora/keyboard/e
-      disable: dora/keyboard/d
       action: replay/action
     outputs: [safe_action]

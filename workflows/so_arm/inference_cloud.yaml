@@ -1,17 +1,14 @@
 nodes:
   - id: so-arm
     path: cargo
-    args: [run, --quiet, -p, so-arm-hal-node]
+    args: run --quiet -p so-arm-hal-node
     inputs:
       tick: dora/timer/millis/33
-      calibrate: dora/keyboard/c
-      enable: dora/keyboard/e
-      disable: dora/keyboard/d
       action: cloud-policy/action
     outputs: [observation, safe_action]
   - id: cloud-policy
     path: uv
-    args: [run, python, -m, dora_lerobot.nodes.cloud_policy_node]
+    args: run python -m dora_lerobot.nodes.cloud_policy_node
     inputs:
       observation: so-arm/observation
     outputs: [action]

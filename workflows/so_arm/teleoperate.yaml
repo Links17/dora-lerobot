@@ -1,17 +1,14 @@
 nodes:
   - id: so-arm
     path: cargo
-    args: [run, --quiet, -p, so-arm-hal-node]
+    args: run --quiet -p so-arm-hal-node
     inputs:
       tick: dora/timer/millis/33
-      calibrate: dora/keyboard/c
-      enable: dora/keyboard/e
-      disable: dora/keyboard/d
       action: teleoperator/action
     outputs: [observation, safe_action]
   - id: teleoperator
     path: uv
-    args: [run, python, -m, dora_lerobot.runtime.so_arm_teleop_node]
+    args: run python -m dora_lerobot.runtime.so_arm_teleop_node
     inputs:
       tick: dora/timer/millis/33
     outputs: [action]
