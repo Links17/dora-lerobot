@@ -2,8 +2,8 @@ use b601_dm_hal_node::{RuntimeConfig, is_discovery_request, parse_lifecycle};
 use dora_lerobot_hal::{DamiaoAction, DmAdapter, open_damiao_serial};
 use dora_node_api::{DoraNode, Event, arrow::array::StringArray, dora_core::config::DataId};
 use eyre::{Context, Result};
-use seeed_hal_adapter_serialport::SerialPortAdapter;
-use seeed_hal_runtime::HalRuntime;
+use robot_hal_adapter_serialport::SerialPortAdapter;
+use robot_hal_runtime::HalRuntime;
 use serde::Deserialize;
 use std::{
     fs,

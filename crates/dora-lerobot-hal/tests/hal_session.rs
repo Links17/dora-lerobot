@@ -2,10 +2,10 @@ use dora_lerobot_hal::{
     DamiaoCanFrame, HalSerialIo, JointCalibration, JointLimit, SoArmConfig, SoArmState,
     open_damiao_serial, open_so_arm,
 };
-use seeed_hal_core::{IdentityQuality, OwnerId, ResourceId, ResourceSelector, TransportKind};
-use seeed_hal_runtime::HalRuntime;
-use seeed_hal_serial::SerialConfig;
-use seeed_hal_testkit::VirtualSerialAdapter;
+use robot_hal_core::{IdentityQuality, OwnerId, ResourceId, ResourceSelector, TransportKind};
+use robot_hal_runtime::HalRuntime;
+use robot_hal_serial::SerialConfig;
+use robot_hal_testkit::VirtualSerialAdapter;
 
 fn config() -> SoArmConfig {
     SoArmConfig::new(

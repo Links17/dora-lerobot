@@ -9,10 +9,10 @@ publish = false
 dora-lerobot-hal = { path = "../../crates/dora-lerobot-hal" }
 dora-node-api = { version = "1.0.0-rc.4", default-features = false }
 eyre = "0.6"
-seeed-hal-adapter-socketcan = { path = "../../../links/seeed-robotic/seeed-hal/adapters/socketcan" }
-seeed-hal-core = { path = "../../../links/seeed-robotic/seeed-hal/crates/seeed-hal-core" }
-seeed-hal-can = { path = "../../../links/seeed-robotic/seeed-hal/crates/seeed-hal-can" }
-seeed-hal-runtime = { path = "../../../links/seeed-robotic/seeed-hal/crates/seeed-hal-runtime" }
+robot-hal-adapter-socketcan = { path = "../../../links/seeed-robotic/robot-hal/adapters/socketcan" }
+robot-hal-core = { path = "../../../links/seeed-robotic/robot-hal/crates/robot-hal-core" }
+robot-hal-can = { path = "../../../links/seeed-robotic/robot-hal/crates/robot-hal-can" }
+robot-hal-runtime = { path = "../../../links/seeed-robotic/robot-hal/crates/robot-hal-runtime" }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 serde_yaml = "0.9"

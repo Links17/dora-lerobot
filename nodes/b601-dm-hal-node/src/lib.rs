@@ -1,6 +1,6 @@
 use dora_lerobot_hal::B601_DM_MOTOR_IDS;
-use seeed_hal_core::{IdentityQuality, OwnerId, ResourceId, ResourceSelector, TransportKind};
-use seeed_hal_serial::SerialConfig;
+use robot_hal_core::{IdentityQuality, OwnerId, ResourceId, ResourceSelector, TransportKind};
+use robot_hal_serial::SerialConfig;
 use serde::Deserialize;
 use std::time::Duration;
 use thiserror::Error;
@@ -10,13 +10,13 @@ pub enum ConfigError {
     #[error("invalid YAML configuration: {0}")]
     Yaml(#[from] serde_yaml::Error),
     #[error("invalid HAL identifier: {0}")]
-    Hal(Box<seeed_hal_core::HalError>),
+    Hal(Box<robot_hal_core::HalError>),
     #[error("DM configuration must use a serial HAL resource and seven canonical motor ids")]
     Invalid,
 }
 
-impl From<seeed_hal_core::HalError> for ConfigError {
-    fn from(error: seeed_hal_core::HalError) -> Self {
+impl From<robot_hal_core::HalError> for ConfigError {
+    fn from(error: robot_hal_core::HalError) -> Self {
         Self::Hal(Box::new(error))
     }
 }

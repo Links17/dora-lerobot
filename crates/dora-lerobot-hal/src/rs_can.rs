@@ -1,11 +1,11 @@
 use crate::{RsCanFrame, RsMitError, RsMitTransport};
 use async_trait::async_trait;
-use seeed_hal_can::{
+use robot_hal_can::{
     CanFilter, CanFilterSet, CanFrame, CanFrameClasses, CanId, CanIdFormat, CanLinkExpectation,
     CanMode, CanOpenConfig,
 };
-use seeed_hal_core::{LeaseMode, OwnerId, ResourceSelector};
-use seeed_hal_runtime::{CanHandle, HalRuntime};
+use robot_hal_core::{LeaseMode, OwnerId, ResourceSelector};
+use robot_hal_runtime::{CanHandle, HalRuntime};
 use std::time::Duration;
 
 /// HAL-owned SocketCAN session for B601-RS. The RS driver only sees standard
@@ -90,6 +90,6 @@ impl RsMitTransport for HalRsCanTransport {
         Ok(Some(RsCanFrame::standard(id, bytes)))
     }
 }
-fn hal(error: seeed_hal_core::HalError) -> RsMitError {
+fn hal(error: robot_hal_core::HalError) -> RsMitError {
     RsMitError::Transport(error.to_string())
 }

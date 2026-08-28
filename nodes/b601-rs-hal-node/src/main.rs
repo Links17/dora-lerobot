@@ -2,8 +2,8 @@ use b601_rs_hal_node::{RuntimeConfig, is_discovery_request, parse_lifecycle};
 use dora_lerobot_hal::{HalRsCanTransport, RsAdapter, RsAdapterSettings, RsTorqueFeedforward};
 use dora_node_api::{DoraNode, Event, arrow::array::StringArray, dora_core::config::DataId};
 use eyre::{Context, Result};
-use seeed_hal_adapter_socketcan::SocketCanAdapter;
-use seeed_hal_runtime::HalRuntime;
+use robot_hal_adapter_socketcan::SocketCanAdapter;
+use robot_hal_runtime::HalRuntime;
 use serde::Deserialize;
 use std::{
     fs,
@@ -87,9 +87,13 @@ fn main() -> Result<()> {
                     )?;
                     continue;
                 }
-                match tokio
-                    .block_on(adapter.apply_action_with_torque(action.positions_rad, action.timestamp_ns, RsTorqueFeedforward { torque_nm: action.torque_nm.unwrap_or([0.0; 7]) }))
-                {
+                match tokio.block_on(adapter.apply_action_with_torque(
+                    action.positions_rad,
+                    action.timestamp_ns,
+                    RsTorqueFeedforward {
+                        torque_nm: action.torque_nm.unwrap_or([0.0; 7]),
+                    },
+                )) {
                     Ok(()) => node.send_output(
                         DataId::from("safe_action".to_owned()),
                         Default::default(),

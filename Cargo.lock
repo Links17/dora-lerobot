@@ -444,10 +444,10 @@ dependencies = [
  "dora-lerobot-hal",
  "dora-node-api",
  "eyre",
- "seeed-hal-adapter-serialport",
- "seeed-hal-core",
- "seeed-hal-runtime",
- "seeed-hal-serial",
+ "robot-hal-adapter-serialport",
+ "robot-hal-core",
+ "robot-hal-runtime",
+ "robot-hal-serial",
  "serde",
  "serde_json",
  "serde_yaml",
@@ -462,10 +462,10 @@ dependencies = [
  "dora-lerobot-hal",
  "dora-node-api",
  "eyre",
- "seeed-hal-adapter-socketcan",
- "seeed-hal-can",
- "seeed-hal-core",
- "seeed-hal-runtime",
+ "robot-hal-adapter-socketcan",
+ "robot-hal-can",
+ "robot-hal-core",
+ "robot-hal-runtime",
  "serde",
  "serde_json",
  "serde_yaml",
@@ -1080,11 +1080,11 @@ version = "0.1.0"
 dependencies = [
  "async-trait",
  "bytes",
- "seeed-hal-can",
- "seeed-hal-core",
- "seeed-hal-runtime",
- "seeed-hal-serial",
- "seeed-hal-testkit",
+ "robot-hal-can",
+ "robot-hal-core",
+ "robot-hal-runtime",
+ "robot-hal-serial",
+ "robot-hal-testkit",
  "thiserror 2.0.20",
  "tokio",
 ]
@@ -2894,6 +2894,137 @@ dependencies = [
 ]
 
 [[package]]
+name = "robot-hal-adapter-serialport"
+version = "0.5.0-rc.1"
+dependencies = [
+ "async-trait",
+ "bytes",
+ "libc",
+ "percent-encoding",
+ "robot-hal-core",
+ "robot-hal-serial",
+ "serial2",
+ "serialport",
+ "tokio",
+ "windows-sys 0.61.2",
+]
+
+[[package]]
+name = "robot-hal-adapter-shared-memory"
+version = "0.5.0-rc.1"
+dependencies = [
+ "getrandom 0.3.4",
+ "libc",
+ "robot-hal-camera",
+ "robot-hal-core",
+ "sha2",
+ "subtle",
+ "thiserror 2.0.20",
+ "windows-permissions",
+ "windows-sys 0.61.2",
+ "zeroize",
+]
+
+[[package]]
+name = "robot-hal-adapter-socketcan"
+version = "0.5.0-rc.1"
+dependencies = [
+ "async-trait",
+ "can-hal-rs",
+ "can-hal-socketcan",
+ "libc",
+ "neli",
+ "percent-encoding",
+ "robot-hal-can",
+ "robot-hal-core",
+ "socketcan",
+ "tokio",
+]
+
+[[package]]
+name = "robot-hal-camera"
+version = "0.5.0-rc.1"
+dependencies = [
+ "async-trait",
+ "bytes",
+ "robot-hal-core",
+]
+
+[[package]]
+name = "robot-hal-can"
+version = "0.5.0-rc.1"
+dependencies = [
+ "async-trait",
+ "bytes",
+ "robot-hal-core",
+]
+
+[[package]]
+name = "robot-hal-core"
+version = "0.5.0-rc.1"
+dependencies = [
+ "serde",
+ "uuid",
+]
+
+[[package]]
+name = "robot-hal-gpio"
+version = "0.5.0-rc.1"
+dependencies = [
+ "async-trait",
+ "robot-hal-core",
+]
+
+[[package]]
+name = "robot-hal-runtime"
+version = "0.5.0-rc.1"
+dependencies = [
+ "bytes",
+ "robot-hal-adapter-shared-memory",
+ "robot-hal-camera",
+ "robot-hal-can",
+ "robot-hal-core",
+ "robot-hal-gpio",
+ "robot-hal-serial",
+ "robot-hal-usb",
+ "tokio",
+ "uuid",
+]
+
+[[package]]
+name = "robot-hal-serial"
+version = "0.5.0-rc.1"
+dependencies = [
+ "async-trait",
+ "bytes",
+ "robot-hal-core",
+]
+
+[[package]]
+name = "robot-hal-testkit"
+version = "0.5.0-rc.1"
+dependencies = [
+ "async-trait",
+ "bytes",
+ "robot-hal-camera",
+ "robot-hal-can",
+ "robot-hal-core",
+ "robot-hal-gpio",
+ "robot-hal-serial",
+ "robot-hal-usb",
+ "tokio",
+]
+
+[[package]]
+name = "robot-hal-usb"
+version = "0.5.0-rc.1"
+dependencies = [
+ "async-trait",
+ "bytes",
+ "robot-hal-core",
+]
+
+[[package]]
 name = "ron"
 version = "0.12.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3131,137 +3262,6 @@ checksum = "6ce2691df843ecc5d231c0b14ece2acc3efb62c0a398c7e1d875f3983ce020e3"
 dependencies = [
  "core-foundation-sys",
  "libc",
-]
-
-[[package]]
-name = "seeed-hal-adapter-serialport"
-version = "0.5.0-rc.1"
-dependencies = [
- "async-trait",
- "bytes",
- "libc",
- "percent-encoding",
- "seeed-hal-core",
- "seeed-hal-serial",
- "serial2",
- "serialport",
- "tokio",
- "windows-sys 0.61.2",
-]
-
-[[package]]
-name = "seeed-hal-adapter-shared-memory"
-version = "0.5.0-rc.1"
-dependencies = [
- "getrandom 0.3.4",
- "libc",
- "seeed-hal-camera",
- "seeed-hal-core",
- "sha2",
- "subtle",
- "thiserror 2.0.20",
- "windows-permissions",
- "windows-sys 0.61.2",
- "zeroize",
-]
-
-[[package]]
-name = "seeed-hal-adapter-socketcan"
-version = "0.5.0-rc.1"
-dependencies = [
- "async-trait",
- "can-hal-rs",
- "can-hal-socketcan",
- "libc",
- "neli",
- "percent-encoding",
- "seeed-hal-can",
- "seeed-hal-core",
- "socketcan",
- "tokio",
-]
-
-[[package]]
-name = "seeed-hal-camera"
-version = "0.5.0-rc.1"
-dependencies = [
- "async-trait",
- "bytes",
- "seeed-hal-core",
-]
-
-[[package]]
-name = "seeed-hal-can"
-version = "0.5.0-rc.1"
-dependencies = [
- "async-trait",
- "bytes",
- "seeed-hal-core",
-]
-
-[[package]]
-name = "seeed-hal-core"
-version = "0.5.0-rc.1"
-dependencies = [
- "serde",
- "uuid",
-]
-
-[[package]]
-name = "seeed-hal-gpio"
-version = "0.5.0-rc.1"
-dependencies = [
- "async-trait",
- "seeed-hal-core",
-]
-
-[[package]]
-name = "seeed-hal-runtime"
-version = "0.5.0-rc.1"
-dependencies = [
- "bytes",
- "seeed-hal-adapter-shared-memory",
- "seeed-hal-camera",
- "seeed-hal-can",
- "seeed-hal-core",
- "seeed-hal-gpio",
- "seeed-hal-serial",
- "seeed-hal-usb",
- "tokio",
- "uuid",
-]
-
-[[package]]
-name = "seeed-hal-serial"
-version = "0.5.0-rc.1"
-dependencies = [
- "async-trait",
- "bytes",
- "seeed-hal-core",
-]
-
-[[package]]
-name = "seeed-hal-testkit"
-version = "0.5.0-rc.1"
-dependencies = [
- "async-trait",
- "bytes",
- "seeed-hal-camera",
- "seeed-hal-can",
- "seeed-hal-core",
- "seeed-hal-gpio",
- "seeed-hal-serial",
- "seeed-hal-usb",
- "tokio",
-]
-
-[[package]]
-name = "seeed-hal-usb"
-version = "0.5.0-rc.1"
-dependencies = [
- "async-trait",
- "bytes",
- "seeed-hal-core",
 ]
 
 [[package]]
@@ -3543,10 +3543,10 @@ dependencies = [
  "dora-lerobot-hal",
  "dora-node-api",
  "eyre",
- "seeed-hal-adapter-serialport",
- "seeed-hal-core",
- "seeed-hal-runtime",
- "seeed-hal-serial",
+ "robot-hal-adapter-serialport",
+ "robot-hal-core",
+ "robot-hal-runtime",
+ "robot-hal-serial",
  "serde",
  "serde_json",
  "serde_yaml",

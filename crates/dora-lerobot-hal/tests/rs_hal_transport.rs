@@ -1,8 +1,8 @@
 use dora_lerobot_hal::{HalRsCanTransport, RsCanFrame, RsMitTransport};
-use seeed_hal_can::{CanFrame, CanId};
-use seeed_hal_core::{IdentityQuality, OwnerId, ResourceId, ResourceSelector, TransportKind};
-use seeed_hal_runtime::HalRuntime;
-use seeed_hal_testkit::VirtualCanAdapter;
+use robot_hal_can::{CanFrame, CanId};
+use robot_hal_core::{IdentityQuality, OwnerId, ResourceId, ResourceSelector, TransportKind};
+use robot_hal_runtime::HalRuntime;
+use robot_hal_testkit::VirtualCanAdapter;
 use std::time::Duration;
 
 fn selector() -> ResourceSelector {

@@ -6,7 +6,7 @@
 
 **Architecture:** A Rust DM Dora node owns the HAL lease and the `DmAdapter`. It receives versioned actions and emits versioned observations/status. Existing Python recorder and policy nodes remain bridges only; workflows contain topology and configuration, never serial paths or motor protocol details.
 
-**Tech Stack:** Rust 2024, Dora 1, Seeed HAL, LeRobot Python bridges, Cargo tests, Dora graph build validation.
+**Tech Stack:** Rust 2024, Dora 1, Robot HAL, LeRobot Python bridges, Cargo tests, Dora graph build validation.
 
 **Spec:** `AGENTS.md` — Architecture Target
 

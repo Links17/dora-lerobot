@@ -2,7 +2,7 @@
 
 ## 决策
 
-平台采用五层结构。Dora 是与业务无关的执行底座；Seeed HAL 是与机器人
+平台采用五层结构。Dora 是与业务无关的执行底座；Robot HAL 是与机器人
 语义无关的硬件资源底座。两者均不得承载产品业务。
 
 ```text
@@ -19,7 +19,7 @@ workflow scheduling · node communication · stream observability
 Robot Runtime
 robot adapters · device-protocol drivers · local safety
         |
-Seeed HAL
+Robot HAL
 identity · discovery · sessions · leases · Serial/CAN/USB/GPIO/Camera
         |
 OS drivers and physical hardware
@@ -63,9 +63,9 @@ This layer owns domain safety: torque disable, safe hold, damped stop, homing
 and calibration semantics. These remain local even if the policy or control
 plane is remote.
 
-### Seeed HAL
+### Robot HAL
 
-Seeed HAL is the sole transport and hardware-resource abstraction: resource
+Robot HAL is the sole transport and hardware-resource abstraction: resource
 identity, discovery, session/lease ownership, fencing generations, cancellation,
 backpressure, diagnostics and cross-platform Serial, CAN, USB, GPIO and Camera
 I/O. It has no understanding of robots, motors, calibration, teleoperation,
@@ -106,7 +106,7 @@ their protocol-specific behavior above HAL.
 ## Desktop packaging direction
 
 The desktop product packages Electron, the Rust control-plane sidecar, Dora,
-the Seeed HAL broker and only the selected runtime components. Python is an
+the Robot HAL broker and only the selected runtime components. Python is an
 optional worker component for LeRobot, vendor SDKs and Python policies; it no
 longer hosts product APIs or desktop lifecycle.
 
@@ -122,7 +122,7 @@ in user-data storage, not inside immutable application bundles.
 
 ## Migration sequence
 
-1. Use Seeed HAL for device discovery, persistent identity and exclusive leases
+1. Use Robot HAL for device discovery, persistent identity and exclusive leases
    while retaining explicitly selected vendor-direct runtime mode.
 2. Introduce the Rust control plane alongside the existing product application;
    make it own workflow requests, structured state, logs and desktop sidecar
@@ -140,7 +140,7 @@ in user-data storage, not inside immutable application bundles.
 
 ## Non-goals
 
-- Do not put robot protocols or joint semantics into Seeed HAL.
+- Do not put robot protocols or joint semantics into Robot HAL.
 - Do not put business workflows, users or persistence schemas into Dora.
 - Do not rely on broker lease expiry as a physical safe-stop mechanism.
 - Do not perform a big-bang rewrite of the current application.

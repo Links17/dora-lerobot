@@ -1,6 +1,6 @@
 //! HAL-backed robot protocol drivers.
 //!
-//! This crate deliberately contains device protocol semantics above Seeed HAL.
+//! This crate deliberately contains device protocol semantics above Robot HAL.
 //! HAL remains responsible only for transport resources and their leases.
 
 mod damiao;
@@ -30,9 +30,9 @@ pub use rs_mit::{
 
 use async_trait::async_trait;
 use bytes::Bytes;
-use seeed_hal_core::{HalError, OwnerId, ResourceSelector};
-use seeed_hal_runtime::{HalRuntime, SerialHandle};
-use seeed_hal_serial::SerialConfig;
+use robot_hal_core::{HalError, OwnerId, ResourceSelector};
+use robot_hal_runtime::{HalRuntime, SerialHandle};
+use robot_hal_serial::SerialConfig;
 use std::collections::BTreeMap;
 use std::f64::consts::TAU;
 use thiserror::Error;

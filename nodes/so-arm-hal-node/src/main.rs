@@ -3,8 +3,8 @@
 use dora_lerobot_hal::{SO_ARM_JOINTS, SoArmAction, open_so_arm};
 use dora_node_api::{DoraNode, Event, arrow::array::StringArray, dora_core::config::DataId};
 use eyre::{Context, Result, bail};
-use seeed_hal_adapter_serialport::SerialPortAdapter;
-use seeed_hal_runtime::HalRuntime;
+use robot_hal_adapter_serialport::SerialPortAdapter;
+use robot_hal_runtime::HalRuntime;
 use serde::Deserialize;
 use so_arm_hal_node::{
     LifecycleCommand, RuntimeConfig, is_discovery_request, is_recoverable_action_error,

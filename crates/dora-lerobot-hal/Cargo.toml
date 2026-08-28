@@ -10,11 +10,11 @@ async-trait = "0.1"
 bytes = "1"
 thiserror = "2"
 tokio = { version = "1", features = ["sync"] }
-seeed-hal-core = { path = "../../../links/seeed-robotic/seeed-hal/crates/seeed-hal-core" }
-seeed-hal-can = { path = "../../../links/seeed-robotic/seeed-hal/crates/seeed-hal-can" }
-seeed-hal-runtime = { path = "../../../links/seeed-robotic/seeed-hal/crates/seeed-hal-runtime" }
-seeed-hal-serial = { path = "../../../links/seeed-robotic/seeed-hal/crates/seeed-hal-serial" }
+robot-hal-core = { path = "../../../links/seeed-robotic/robot-hal/crates/robot-hal-core" }
+robot-hal-can = { path = "../../../links/seeed-robotic/robot-hal/crates/robot-hal-can" }
+robot-hal-runtime = { path = "../../../links/seeed-robotic/robot-hal/crates/robot-hal-runtime" }
+robot-hal-serial = { path = "../../../links/seeed-robotic/robot-hal/crates/robot-hal-serial" }
 
 [dev-dependencies]
 tokio = { version = "1", features = ["macros", "rt"] }
-seeed-hal-testkit = { path = "../../../links/seeed-robotic/seeed-hal/crates/seeed-hal-testkit" }
+robot-hal-testkit = { path = "../../../links/seeed-robotic/robot-hal/crates/robot-hal-testkit" }

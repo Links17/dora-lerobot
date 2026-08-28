@@ -1,9 +1,9 @@
-# Seeed HAL 依赖基线
+# Robot HAL 依赖基线
 
-本仓库在本地开发阶段通过 Cargo `path` 依赖使用工作区外的 Seeed HAL：
+本仓库在本地开发阶段通过 Cargo `path` 依赖使用工作区外的 Robot HAL：
 
 ```text
-../links/seeed-robotic/seeed-hal
+../links/seeed-robotic/robot-hal
 ```
 
 当前已验证的 HAL 基线：
@@ -19,8 +19,8 @@
 ## 更新检查
 
 ```bash
-git -C ../links/seeed-robotic/seeed-hal log -1 --oneline
-cargo tree -p dora-lerobot-hal | rg 'seeed-hal-(core|can|serial|runtime)'
+git -C ../links/seeed-robotic/robot-hal log -1 --oneline
+cargo tree -p dora-lerobot-hal | rg 'robot-hal-(core|can|serial|runtime)'
 cargo check --workspace
 ```
 
