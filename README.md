@@ -68,6 +68,10 @@ or inspect its [versioned source](docs/architecture/robot-hal-platform.architect
 For the detailed boundary and non-goals, see [AGENTS.md](AGENTS.md) and
 [`docs/architecture/`](docs/architecture).
 
+![Dora-LeRobot and Robot HAL architecture](docs/architecture/robot-hal-platform.png)
+
+The PNG above is the static README preview; the HTML version is interactive.
+
 ## Supported paths
 
 | Path | Hardware / runtime | Status |
